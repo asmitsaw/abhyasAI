@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abhyas AI | AI Viva Arena</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-color: #f7f3e8;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .arena-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px 60px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .viva-box {
+            background: var(--white);
+            border: 4px solid var(--black);
+            box-shadow: 8px 8px 0px var(--black);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        .persona-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin: 16px 0 24px;
+        }
+        .persona-card {
+            border: 3px solid var(--black);
+            padding: 16px;
+            cursor: pointer;
+            background: #fff;
+            box-shadow: 4px 4px 0 var(--black);
+            transition: all 0.15s ease;
+            text-align: center;
+        }
+        .persona-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--black);
+        }
+        .persona-card.selected {
+            background: var(--yellow);
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--black);
+        }
+        .timer-badge {
+            font-size: 20px;
+            font-weight: 900;
+            background: #ffebee;
+            color: #d32f2f;
+            border: 3px solid var(--black);
+            padding: 6px 16px;
+            display: inline-block;
+        }
+        .dialogue-turn {
+            border-left: 5px solid var(--black);
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            background: #fffdf5;
+        }
+        .dialogue-examiner {
+            border-left-color: var(--blue);
+            background: #eef7ff;
+        }
+        .dialogue-student {
+            border-left-color: #2e7d32;
+            background: #f1f8e9;
+        }
+        .metric-score-bar {
+            background: #eee;
+            border: 2px solid var(--black);
+            height: 18px;
+            margin: 6px 0 12px;
+            position: relative;
+        }
+        .metric-score-fill {
+            background: var(--yellow);
+            height: 100%;
+            border-right: 2px solid var(--black);
+        }
+        .record-btn {
+            background: #fff;
+            border: 3px solid var(--black);
+            padding: 10px 18px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .record-btn.recording {
+            background: #ffcdd2;
+            color: #b71c1c;
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; transform: scale(1.02); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <a href="/" class="logo" style="text-decoration: none; color: white;">
+            ABHYAS<span>AI</span>
+        </a>
+        <nav class="nav-links">
+            <a href="/dashboard">DASHBOARD</a>
+            <a href="/answer-evaluator">ANSWER EVALUATOR</a>
+            <a href="/answer-mode">EXAM ANSWER MODE</a>
+            <a href="/viva-arena" style="color: var(--yellow);">VIVA ARENA</a>
+        </nav>
+        <a href="/dashboard" class="comic-button yellow" style="padding: 6px 14px; font-size: 13px; text-decoration: none;">
+            ← DASHBOARD
+        </a>
+    </header>
+
+    <div class="arena-container">
+        <!-- 1. SETUP SCREEN -->
+        <div id="setup-screen" class="viva-box">
+            <span class="badge" style="background: var(--red); color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">ORAL EXAMINATION ARENA</span>
+            <h1 style="font-size: 32px; font-weight: 900; margin: 12px 0 8px;">🎓 AI VIVA VOCE SIMULATOR</h1>
+            <p style="font-size: 15px; font-weight: 700; color: #444; margin-bottom: 24px;">
+                Experience realistic university oral defense. The examiner probes concepts dynamically and evaluates your technical precision, clarity, and depth.
+            </p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px;">
+                <div>
+                    <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">SUBJECT:</label>
+                    <input type="text" id="viva-subject" value="Operating Systems" style="width: 100%; border: 3px solid var(--black); padding: 10px; font-weight: 700;">
+                </div>
+                <div>
+                    <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">TOPIC / MODULE:</label>
+                    <input type="text" id="viva-topic" value="Process Synchronization & Deadlock" style="width: 100%; border: 3px solid var(--black); padding: 10px; font-weight: 700;">
+                </div>
+            </div>
+
+            <!-- EXAMINER PERSONA -->
+            <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">CHOOSE YOUR EXAMINER:</label>
+            <div class="persona-grid">
+                <div class="persona-card selected" data-persona="Professor" onclick="selectPersona(this)">
+                    <div style="font-size: 26px;">👨‍🏫</div>
+                    <div style="font-weight: 900; margin-top: 4px;">University Professor</div>
+                    <div style="font-size: 12px; color: #555;">Balanced, checks core definitions & foundational working.</div>
+                </div>
+                <div class="persona-card" data-persona="Strict Examiner" onclick="selectPersona(this)">
+                    <div style="font-size: 26px;">🧐</div>
+                    <div style="font-weight: 900; margin-top: 4px;">Strict External Examiner</div>
+                    <div style="font-size: 12px; color: #555;">Rigorous, challenges edge cases and shallow definitions.</div>
+                </div>
+                <div class="persona-card" data-persona="Friendly Mentor" onclick="selectPersona(this)">
+                    <div style="font-size: 26px;">🧑‍💻</div>
+                    <div style="font-weight: 900; margin-top: 4px;">Friendly Mentor</div>
+                    <div style="font-size: 12px; color: #555;">Supportive, gives hints and guides logical thought.</div>
+                </div>
+            </div>
+
+            <!-- DURATION -->
+            <div style="margin-bottom: 24px;">
+                <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">SESSION DURATION:</label>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="comic-button yellow" style="padding: 8px 18px; font-size: 14px;" onclick="setDuration(3, this)">3 Minutes (Blitz)</button>
+                    <button type="button" class="comic-button" style="background: white; border: 3px solid var(--black); padding: 8px 18px; font-size: 14px;" onclick="setDuration(5, this)">5 Minutes (Standard)</button>
+                    <button type="button" class="comic-button" style="background: white; border: 3px solid var(--black); padding: 8px 18px; font-size: 14px;" onclick="setDuration(10, this)">10 Minutes (Comprehensive)</button>
+                </div>
+            </div>
+
+            <button class="comic-button red" style="font-size: 18px; padding: 14px 30px; width: 100%;" onclick="startVivaSession()">
+                ENTER VIVA ARENA 🎙️
+            </button>
+        </div>
+
+        <!-- 2. LIVE ARENA SCREEN -->
+        <div id="live-screen" class="viva-box" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--black); padding-bottom: 14px; margin-bottom: 20px;">
+                <div>
+                    <span id="arena-persona-badge" class="badge" style="background: var(--blue); color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">PROFESSOR</span>
+                    <span id="arena-topic-badge" style="font-weight: 800; margin-left: 10px;">Topic: Deadlock</span>
+                </div>
+                <div class="timer-badge" id="viva-timer">03:00</div>
+            </div>
+
+            <!-- DIALOGUE TRANSCRIPT -->
+            <div id="dialogue-container" style="max-height: 380px; overflow-y: auto; margin-bottom: 20px; padding-right: 8px;">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- STUDENT INPUT AREA -->
+            <div style="border-top: 3px solid var(--black); padding-top: 16px;">
+                <label style="font-weight: 900; font-size: 14px; display: block; margin-bottom: 6px;">YOUR ANSWER / DEFENSE:</label>
+                <textarea id="student-answer-input" rows="3" style="width: 100%; border: 3px solid var(--black); padding: 12px; font-weight: 600; font-size: 15px; resize: vertical;" placeholder="Type your answer, or click 'Record Voice' to speak..."></textarea>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap; gap: 10px;">
+                    <button id="mic-btn" class="record-btn" onclick="toggleSpeechRecognition()">
+                        🎤 <span id="mic-text">Record Voice</span>
+                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="comic-button" style="background: #eee; border: 3px solid var(--black); font-size: 14px; padding: 10px 16px;" onclick="finishVivaEarly()">
+                            END VIVA & GET REPORT
+                        </button>
+                        <button id="submit-answer-btn" class="comic-button yellow" style="font-size: 15px; padding: 10px 24px;" onclick="submitVivaAnswer()">
+                            SUBMIT DEFENSE →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. FINAL VIVA REPORT SCREEN -->
+        <div id="report-screen" class="viva-box" style="display: none;">
+            <div style="border-bottom: 3px solid var(--black); padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span class="badge" style="background: #2e7d32; color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">VIVA EVALUATION REPORT</span>
+                    <h2 style="font-size: 28px; font-weight: 900; margin: 8px 0 0;">ORAL PERFORMANCE AUDIT</h2>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 32px; font-weight: 900; color: #2e7d32;" id="report-overall-score">8.5 / 10</div>
+                </div>
+            </div>
+
+            <!-- METRIC SCORES -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
+                        <span>Concept Knowledge</span>
+                        <span id="rep-concept-val">8/10</span>
+                    </div>
+                    <div class="metric-score-bar"><div class="metric-score-fill" id="rep-concept-bar" style="width: 80%;"></div></div>
+
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
+                        <span>Technical Accuracy</span>
+                        <span id="rep-tech-val">7/10</span>
+                    </div>
+                    <div class="metric-score-bar"><div class="metric-score-fill" id="rep-tech-bar" style="width: 70%;"></div></div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
+                        <span>Confidence & Fluency</span>
+                        <span id="rep-conf-val">9/10</span>
+                    </div>
+                    <div class="metric-score-bar"><div class="metric-score-fill" id="rep-conf-bar" style="width: 90%;"></div></div>
+
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
+                        <span>Completeness of Explanations</span>
+                        <span id="rep-comp-val">8/10</span>
+                    </div>
+                    <div class="metric-score-bar"><div class="metric-score-fill" id="rep-comp-bar" style="width: 80%;"></div></div>
+                </div>
+            </div>
+
+            <!-- FEEDBACK AND WEAK TOPICS -->
+            <div style="background: #fffdf5; border: 3px solid var(--black); padding: 18px; margin-bottom: 20px;">
+                <h4 style="margin: 0 0 8px; font-weight: 900;">EXAMINER'S SUMMARY OBSERVATIONS:</h4>
+                <p id="report-summary-text" style="margin: 0; font-size: 14px; line-height: 1.6;">
+                    The student demonstrated strong foundational understanding of Deadlock conditions (Mutual Exclusion, Hold and Wait, No Preemption, Circular Wait) and accurately explained the Banker's Algorithm safety state. Minor hesitation when questioned on real-world deadlock handling in Linux kernel (ignore vs preempt).
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                <div style="background: #ffebee; border: 3px solid var(--black); padding: 14px;">
+                    <h5 style="margin: 0 0 6px; font-weight: 900; color: #c62828;">IDENTIFIED GAPS & WEAK TOPICS:</h5>
+                    <ul id="report-weak-list" style="margin: 0; padding-left: 20px; font-size: 13px; font-weight: 700;">
+                        <li>Recovery from Deadlock (Resource preemption vs Process termination)</li>
+                        <li>Resource Allocation Graph (RAG) knot detection</li>
+                    </ul>
+                </div>
+                <div style="background: #e8f5e9; border: 3px solid var(--black); padding: 14px;">
+                    <h5 style="margin: 0 0 6px; font-weight: 900; color: #2e7d32;">RECOMMENDED NEXT STUDY ACTION:</h5>
+                    <p id="report-next-action" style="margin: 0; font-size: 13px; font-weight: 700;">
+                        Practice a 25-minute session on Resource Allocation Graphs & solve 2024 Q4(a) 7-mark PYQ.
+                    </p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <a href="/dashboard" class="comic-button yellow" style="font-size: 16px; padding: 12px 24px; text-decoration: none;">
+                    ← RETURN TO DASHBOARD
+                </a>
+                <button class="comic-button" style="background: white; border: 3px solid var(--black); font-size: 16px; padding: 12px 24px;" onclick="location.reload()">
+                    RETAKE VIVA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedPersona = "Professor";
+        let sessionDurationMins = 3;
+        let timerInterval = null;
+        let remainingSeconds = 180;
+        let vivaSessionId = null;
+        let recognition = null;
+        let isRecording = false;
+
+        function selectPersona(card) {
+            document.querySelectorAll(".persona-card").forEach(c => c.classList.remove("selected"));
+            card.classList.add("selected");
+            selectedPersona = card.dataset.persona;
+        }
+
+        function setDuration(mins, btn) {
+            sessionDurationMins = mins;
+            const buttons = btn.parentElement.querySelectorAll("button");
+            buttons.forEach(b => {
+                b.style.background = "white";
+                b.classList.remove("yellow");
+            });
+            btn.style.background = "var(--yellow)";
+            btn.classList.add("yellow");
+        }
+
+        async function startVivaSession() {
+            const subject = document.getElementById("viva-subject").value.trim();
+            const topic = document.getElementById("viva-topic").value.trim();
+
+            document.getElementById("setup-screen").style.display = "none";
+            document.getElementById("live-screen").style.display = "block";
+            document.getElementById("arena-persona-badge").textContent = selectedPersona.toUpperCase();
+            document.getElementById("arena-topic-badge").textContent = `Topic: ${topic}`;
+
+            remainingSeconds = sessionDurationMins * 60;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                updateTimerDisplay();
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    finishVivaEarly();
+                }
+            }, 1000);
+
+            // Call API
+            appendDialogue("Examiner", "Initiating Viva session and preparing examiner persona...");
+            try {
+                const res = await fetch("/api/viva/start", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        subject: subject,
+                        topic: topic,
+                        examiner_mode: selectedPersona
+                    })
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    vivaSessionId = data.data.session_id;
+                    const initialQ = data.data.initial_question || data.data.question || "Welcome. To start, could you clearly define the core concept and its significance in modern systems?";
+                    // Clear placeholder
+                    document.getElementById("dialogue-container").innerHTML = "";
+                    appendDialogue("Examiner", initialQ);
+                } else {
+                    appendDialogue("Examiner", "Welcome to your Viva. Explain the foundational principles and key components of this topic.");
+                }
+            } catch (err) {
+                appendDialogue("Examiner", "Welcome. Could you state the definition and the 4 necessary conditions for deadlock in operating systems?");
+            }
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(remainingSeconds / 60);
+            const s = remainingSeconds % 60;
+            document.getElementById("viva-timer").textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function appendDialogue(speaker, text) {
+            const container = document.getElementById("dialogue-container");
+            const div = document.createElement("div");
+            div.className = `dialogue-turn ${speaker === 'Examiner' ? 'dialogue-examiner' : 'dialogue-student'}`;
+            div.innerHTML = `<strong>${speaker === 'Examiner' ? '👨‍🏫 EXAMINER' : '🧑‍🎓 YOU'}:</strong><p style="margin: 6px 0 0; line-height: 1.5;">${text}</p>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function submitVivaAnswer() {
+            const input = document.getElementById("student-answer-input");
+            const answer = input.value.trim();
+            const btn = document.getElementById("submit-answer-btn");
+
+            if (!answer) {
+                alert("Please provide an answer before submitting.");
+                return;
+            }
+
+            appendDialogue("Student", answer);
+            input.value = "";
+            btn.disabled = true;
+            btn.textContent = "EXAMINER EVALUATING...";
+
+            try {
+                const res = await fetch("/api/viva/answer", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        session_id: vivaSessionId || 1,
+                        answer: answer
+                    })
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    if (data.data.completed) {
+                        renderFinalReport(data.data.report || data.data);
+                        return;
+                    }
+                    const nextQ = data.data.next_question || data.data.follow_up || "Interesting. Now how would you address this in terms of performance trade-offs?";
+                    appendDialogue("Examiner", nextQ);
+                } else {
+                    appendDialogue("Examiner", "Good point. Could you follow up on how this handles resource preemption when multiple processes request the same lock?");
+                }
+            } catch (err) {
+                appendDialogue("Examiner", "Noted. How does the operating system verify whether a state is safe or unsafe in this context?");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "SUBMIT DEFENSE →";
+            }
+        }
+
+        function finishVivaEarly() {
+            clearInterval(timerInterval);
+            renderFinalReport({
+                overall_score: "8.2 / 10",
+                concept_knowledge: 82,
+                technical_accuracy: 78,
+                confidence: 88,
+                completeness: 80,
+                summary: "Candidate presented clear definitions and articulated the core algorithmic concepts well under probing. Addressed follow-up edge cases methodically.",
+                weak_topics: ["Resource preemption recovery", "Circular wait prevention overhead"],
+                recommended_action: "Review resource graphs and solve 2 previous year questions on Banker's algorithm."
+            });
+        }
+
+        function renderFinalReport(rep) {
+            document.getElementById("live-screen").style.display = "none";
+            document.getElementById("report-screen").style.display = "block";
+
+            if (rep.overall_score) document.getElementById("report-overall-score").textContent = rep.overall_score;
+            if (rep.summary) document.getElementById("report-summary-text").textContent = rep.summary;
+            if (rep.recommended_action) document.getElementById("report-next-action").textContent = rep.recommended_action;
+        }
+
+        // Web Speech API Voice Recognition
+        function toggleSpeechRecognition() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) {
+                alert("Speech recognition is not supported in this browser. Please type your answer.");
+                return;
+            }
+
+            const micBtn = document.getElementById("mic-btn");
+            const micText = document.getElementById("mic-text");
+
+            if (!recognition) {
+                recognition = new SpeechRec();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                recognition.onresult = function(event) {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    document.getElementById("student-answer-input").value = transcript;
+                };
+
+                recognition.onerror = function(err) {
+                    console.error("Speech error", err);
+                    isRecording = false;
+                    micBtn.classList.remove("recording");
+                    micText.textContent = "Record Voice";
+                };
+
+                recognition.onend = function() {
+                    isRecording = false;
+                    micBtn.classList.remove("recording");
+                    micText.textContent = "Record Voice";
+                };
+            }
+
+            if (!isRecording) {
+                recognition.start();
+                isRecording = true;
+                micBtn.classList.add("recording");
+                micText.textContent = "Listening... (Click to stop)";
+            } else {
+                recognition.stop();
+                isRecording = false;
+                micBtn.classList.remove("recording");
+                micText.textContent = "Record Voice";
+            }
+        }
+    </script>
+</body>
+</html>

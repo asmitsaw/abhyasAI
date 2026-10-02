@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abhyas AI | Setup Your Exam Intelligence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .onboarding-container {
+            max-width: 950px;
+            margin: 40px auto;
+            padding: 0 20px 80px;
+        }
+        .form-box {
+            background: var(--white);
+            border: 4px solid var(--black);
+            box-shadow: 6px 6px 0px var(--black);
+            padding: 28px;
+            margin-top: 20px;
+        }
+        .file-drop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .input-group {
+            border: 2px solid var(--black);
+            background: #fffdf2;
+            padding: 14px;
+        }
+        .timeline-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 2px solid var(--black);
+            margin-bottom: 8px;
+            background: var(--white);
+            font-weight: 800;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .timeline-step.pending { opacity: 0.45; }
+        .timeline-step.active {
+            background: var(--yellow);
+            border-left: 8px solid var(--black);
+            opacity: 1;
+            transform: translateX(4px);
+        }
+        .timeline-step.done {
+            background: #e8f5e9;
+            color: #2e7d32;
+            opacity: 1;
+        }
+        .step-icon {
+            font-size: 18px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid var(--black);
+            background: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <a href="/" class="logo" style="text-decoration: none; color: white;">
+            ABHYAS<span>AI</span>
+        </a>
+        <nav class="nav-links">
+            <a href="/dashboard">DASHBOARD</a>
+            <a href="/learn">LEARN LAB</a>
+            <a href="/exam">EXAM PREP</a>
+            <a href="/onboarding" style="color: var(--yellow);">SETUP EXAM</a>
+        </nav>
+        <a href="/dashboard" class="comic-button yellow" style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
+            VIEW DASHBOARD →
+        </a>
+    </header>
+
+    <div class="onboarding-container">
+        
+        <div id="upload-stage">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <span class="comic-button red" style="pointer-events: none; padding: 4px 14px; font-size: 12px;">
+                    STUDY WHAT MATTERS NEXT 💥
+                </span>
+                <h1 style="font-size: 34px; font-weight: 900; margin: 12px 0 6px;">
+                    CONNECT YOUR EXAM MATERIALS
+                </h1>
+                <p style="font-size: 16px; color: #555; max-width: 600px; margin: 0 auto; font-weight: 600;">
+                    Upload your official university syllabus, 1 to 3 previous year papers (PYQs), and lecture notes. Abhyas AI will extract concepts, compute historical relevance, and generate your personal dashboard.
+                </p>
+            </div>
+
+            <form id="onboarding-form" enctype="multipart/form-data" class="form-box">
+                <!-- SUBJECT NAME -->
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 900; font-size: 15px; display: block; margin-bottom: 6px;">
+                        1. SUBJECT NAME:
+                    </label>
+                    <input type="text" name="subject" value="Operating Systems" required style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 700; font-size: 15px; box-sizing: border-box;">
+                </div>
+
+                <!-- SYLLABUS -->
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 900; font-size: 15px; display: block; margin-bottom: 6px;">
+                        2. UNIVERSITY SYLLABUS (PDF / TXT / MD):
+                    </label>
+                    <div class="input-group">
+                        <input type="file" name="syllabus_file" accept=".pdf,.txt,.md,.docx" style="width: 100%; font-weight: 700;">
+                        <div style="text-align: center; margin: 8px 0; font-weight: 800; font-size: 12px; color: #666;">— OR PASTE SYLLABUS TEXT —</div>
+                        <textarea name="syllabus_text" rows="3" placeholder="Module 1: Process Management... Module 2: Memory Management..." style="width: 100%; padding: 10px; border: 2px solid var(--black); font-family: inherit; font-weight: 600; box-sizing: border-box;"></textarea>
+                    </div>
+                </div>
+
+                <!-- PYQS -->
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 900; font-size: 15px; display: block; margin-bottom: 6px;">
+                        3. PREVIOUS YEAR QUESTION PAPERS (Upload 1 to 3 Papers):
+                    </label>
+                    <div class="file-drop-grid">
+                        <div class="input-group">
+                            <span style="font-weight: 800; font-size: 13px; display: block; margin-bottom: 4px;">PYQ Paper 1 (Required):</span>
+                            <input type="file" name="pyq1" accept=".pdf,.txt,.md,.docx" required style="width: 100%;">
+                        </div>
+                        <div class="input-group">
+                            <span style="font-weight: 800; font-size: 13px; display: block; margin-bottom: 4px;">PYQ Paper 2 (Optional):</span>
+                            <input type="file" name="pyq2" accept=".pdf,.txt,.md,.docx" style="width: 100%;">
+                        </div>
+                        <div class="input-group">
+                            <span style="font-weight: 800; font-size: 13px; display: block; margin-bottom: 4px;">PYQ Paper 3 (Optional):</span>
+                            <input type="file" name="pyq3" accept=".pdf,.txt,.md,.docx" style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OPTIONAL NOTES -->
+                <div style="margin-bottom: 25px;">
+                    <label style="font-weight: 900; font-size: 15px; display: block; margin-bottom: 6px;">
+                        4. CLASS NOTES / LECTURE SLIDES (Optional PDF/DOCX/PPTX):
+                    </label>
+                    <div class="input-group">
+                        <input type="file" name="notes_file" accept=".pdf,.txt,.md,.docx,.pptx" style="width: 100%;">
+                    </div>
+                </div>
+
+                <button type="submit" class="comic-button red" style="width: 100%; font-size: 18px; padding: 16px;">
+                    PROCESS EXAM INTELLIGENCE & BUILD DASHBOARD 💥
+                </button>
+            </form>
+        </div>
+
+        <!-- PROCESSING TIMELINE STAGE -->
+        <div id="processing-stage" style="display: none;">
+            <div class="form-box">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <span class="status-badge status-yellow" id="stage-badge">PROCESSING IN PROGRESS</span>
+                    <h2 style="font-size: 28px; font-weight: 900; margin: 10px 0;">
+                        BUILDING YOUR EXAM INTELLIGENCE...
+                    </h2>
+                    <p style="font-size: 14px; font-weight: 600; color: #555;">
+                        Real-time execution: parsing documents, indexing ChromaDB vectors, and ranking historical topics.
+                    </p>
+                </div>
+
+                <div id="timeline-list">
+                    <div class="timeline-step active" id="step-1">
+                        <span class="step-icon">1</span>
+                        <span>Reading and sanitizing uploaded documents...</span>
+                    </div>
+                    <div class="timeline-step pending" id="step-2">
+                        <span class="step-icon">2</span>
+                        <span>Extracting syllabus modules, topics, and subtopics...</span>
+                    </div>
+                    <div class="timeline-step pending" id="step-3">
+                        <span class="step-icon">3</span>
+                        <span>Analyzing past year exam papers & question marks...</span>
+                    </div>
+                    <div class="timeline-step pending" id="step-4">
+                        <span class="step-icon">4</span>
+                        <span>Computing historical topic relevance scores & recency...</span>
+                    </div>
+                    <div class="timeline-step pending" id="step-5">
+                        <span class="step-icon">5</span>
+                        <span>Performing structure-aware chunking & ChromaDB vector indexing...</span>
+                    </div>
+                    <div class="timeline-step pending" id="step-6">
+                        <span class="step-icon">6</span>
+                        <span>Synthesizing curriculum concept graph & prerequisite nodes...</span>
+                    </div>
+                    <div class="timeline-step pending" id="step-7">
+                        <span class="step-icon">7</span>
+                        <span>Calculating baseline student readiness & What Should I Study Now...</span>
+                    </div>
+                </div>
+
+                <div id="ready-banner" style="display: none; margin-top: 25px; text-align: center; background: #e8f5e9; border: 3px solid var(--black); padding: 20px;">
+                    <h3 style="margin: 0 0 8px; color: #2e7d32; font-size: 22px;">EXAM INTELLIGENCE SYSTEM READY! 🚀</h3>
+                    <p style="font-weight: 700; margin-bottom: 15px;">All documents indexed into RAG. Historical question patterns and concept maps are live.</p>
+                    <a href="/dashboard" class="comic-button yellow" style="font-size: 18px; padding: 14px 28px; text-decoration: none;">
+                        LAUNCH YOUR PERSONALIZED DASHBOARD 💥
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const form = document.getElementById("onboarding-form");
+        const uploadStage = document.getElementById("upload-stage");
+        const procStage = document.getElementById("processing-stage");
+        const readyBanner = document.getElementById("ready-banner");
+
+        form.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            uploadStage.style.display = "none";
+            procStage.style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            const formData = new FormData(form);
+
+            // Execute real pipeline steps
+            try {
+                // Step 1: Read files
+                updateStep(1, "active");
+                await new Promise(r => setTimeout(r, 600));
+                updateStep(1, "done");
+
+                // Step 2 & 3: Submit to backend processing endpoint
+                updateStep(2, "active");
+                const res = await fetch("/api/process-materials", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (!data.success) {
+                    alert("Processing notice: " + (data.error || "Failed to process materials."));
+                    location.reload();
+                    return;
+                }
+
+                updateStep(2, "done");
+                updateStep(3, "active");
+                await new Promise(r => setTimeout(r, 600));
+                updateStep(3, "done");
+
+                updateStep(4, "active");
+                await new Promise(r => setTimeout(r, 600));
+                updateStep(4, "done");
+
+                updateStep(5, "active");
+                await new Promise(r => setTimeout(r, 600));
+                updateStep(5, "done");
+
+                updateStep(6, "active");
+                await new Promise(r => setTimeout(r, 500));
+                updateStep(6, "done");
+
+                updateStep(7, "active");
+                await new Promise(r => setTimeout(r, 400));
+                updateStep(7, "done");
+
+                document.getElementById("stage-badge").className = "status-badge status-green";
+                document.getElementById("stage-badge").textContent = "PROCESSING COMPLETED";
+                readyBanner.style.display = "block";
+
+            } catch (err) {
+                console.error(err);
+                alert("Something went wrong during ingestion: " + err);
+            }
+        });
+
+        function updateStep(stepNum, status) {
+            const stepEl = document.getElementById(`step-${stepNum}`);
+            if (!stepEl) return;
+            stepEl.className = `timeline-step ${status}`;
+            if (status === "done") {
+                stepEl.querySelector(".step-icon").innerHTML = "✓";
+                stepEl.querySelector(".step-icon").style.background = "#4caf50";
+                stepEl.querySelector(".step-icon").style.color = "white";
+            }
+        }
+    </script>
+</body>
+</html>

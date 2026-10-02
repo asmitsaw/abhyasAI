@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Abhyas AI | Your AI Study Companion</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <header class="navbar">
+
+        <div class="logo">
+            ABHYAS<span>AI</span>
+        </div>
+
+
+        <nav class="nav-links">
+
+            <a href="#home">HOME</a>
+
+            <a href="/learn">LEARN</a>
+
+            <a href="/exam">PRACTICE</a>
+
+            <a href="#viva">VIVA</a>
+
+        </nav>
+
+
+        <button class="menu-button">
+            ☰
+        </button>
+
+    </header>
+
+
+
+    <!-- =========================
+         HERO SECTION
+    ========================== -->
+
+    <main id="home">
+
+        <section class="hero">
+
+
+            <!-- LEFT SIDE -->
+
+            <div class="hero-left">
+
+                <div class="comic-burst">
+
+                    <span>YOUR</span>
+
+                    <strong>
+                        AI STUDY<br>
+                        SIDEKICK!
+                    </strong>
+
+                </div>
+
+
+                <div class="mascot">
+
+                    🤖
+
+                </div>
+
+
+                <div class="speed-lines">
+
+                    /// /// ///
+
+                </div>
+
+            </div>
+
+
+
+            <!-- RIGHT SIDE -->
+
+            <div class="hero-right">
+
+                <div class="small-heading">
+                    ⚡ AI EXAM INTELLIGENCE SYSTEM ⚡
+                </div>
+
+                <h1>
+                    DON'T JUST STUDY MORE.<br>
+                    <span>STUDY WHAT</span><br>
+                    MATTERS NEXT!
+                </h1>
+
+                <p style="font-size: 17px; line-height: 1.5; margin: 15px 0;">
+                    Turn your syllabus, historical PYQs, and interaction data into continuous, evidence-backed preparation.
+                </p>
+
+                <!-- CLOSED LEARNING LOOP VALUE CHAIN -->
+                <div style="background: #fffdf2; border: 3px solid var(--black); padding: 12px; margin: 15px 0; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: space-around; flex-wrap: wrap; gap: 8px;">
+                    <span>SYLLABUS + PYQs</span>
+                    <span>→</span>
+                    <span style="color: var(--blue);">EXAM INTELLIGENCE</span>
+                    <span>→</span>
+                    <span style="color: var(--red);">PERSONALIZED PREP</span>
+                </div>
+
+                <div class="hero-buttons">
+
+                    <a href="/dashboard" class="comic-button red" style="font-size: 18px;">
+                        START PREPARATION 💥
+                    </a>
+
+                    <a href="/demo" class="comic-button yellow" style="font-size: 18px;">
+                        TRY DEMO ⚡
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             FEATURE SECTION
+        ========================== -->
+
+        <section class="features" id="learn">
+
+
+            <div class="feature-card blue-card">
+
+                <div class="feature-icon">
+
+                    🎥
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        LEARN
+                    </h2>
+
+                    <p>
+                        Paste a YouTube lecture and
+                        turn it into an interactive
+                        learning session.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="feature-card red-card">
+
+                <div class="feature-icon">
+
+                    🧠
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        ASK AI
+                    </h2>
+
+                    <p>
+                        Got a doubt? Ask our AI tutor
+                        questions based on your lecture.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="feature-card yellow-card">
+
+                <div class="feature-icon">
+
+                    💥
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        QUIZ
+                    </h2>
+
+                    <p>
+                        Test yourself with an AI-generated
+                        20-question challenge.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================
+             PRACTICE SECTION
+        ========================== -->
+
+        <section class="practice-preview" id="practice">
+
+            <div class="section-label">
+
+                📚 EXAM PREP MODE
+
+            </div>
+
+
+            <h2>
+
+                READY TO<br>
+
+                <span>CRUSH YOUR EXAM?</span>
+
+            </h2>
+
+
+            <p>
+
+                Upload your syllabus and previous year
+                papers. Abhyas AI will analyze them and
+                create practice papers for you.
+
+            </p>
+
+
+            <a href="/exam" class="comic-button black">
+
+                EXAM PREP NOW 💥
+
+            </a>
+
+        </section>
+
+
+
+        <!-- =========================
+             VIVA SECTION
+        ========================== -->
+
+        <section class="viva-preview" id="viva">
+
+            <div class="viva-character">
+
+                🎤
+
+            </div>
+
+
+            <div>
+
+                <div class="section-label">
+
+                    🎤 VIVA MODE
+
+                </div>
+
+
+                <h2>
+
+                    THINK YOU<br>
+
+                    <span>KNOW IT ALL?</span>
+
+                </h2>
+
+
+                <p>
+
+                    Face an AI examiner and test your
+                    understanding of the topic.
+
+                </p>
+
+
+                <button class="comic-button white">
+
+                    COMING SOON ⚡
+
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        <strong>
+            ABHYAS AI
+        </strong>
+
+        <span>
+            LEARN • PRACTICE • CONQUER
+        </span>
+
+        <span>
+            💥 MADE FOR STUDENTS
+        </span>
+
+    </footer>
+
+
+</body>
+
+</html>

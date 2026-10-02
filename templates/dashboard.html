@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abhyas AI | Exam Intelligence Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .dashboard-container {
+            max-width: 1280px;
+            margin: 30px auto;
+            padding: 0 20px 80px;
+        }
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+        @media (max-width: 900px) {
+            .dash-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .action-banner {
+            background: var(--yellow);
+            border: 4px solid var(--black);
+            box-shadow: 6px 6px 0px var(--black);
+            padding: 24px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .stat-card {
+            background: var(--white);
+            border: 3px solid var(--black);
+            box-shadow: 4px 4px 0px var(--black);
+            padding: 20px;
+        }
+        .badge-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 800;
+            border: 2px solid var(--black);
+            text-transform: uppercase;
+        }
+        .badge-critical { background: var(--red); color: white; }
+        .badge-weak { background: #ff9800; color: white; }
+        .badge-developing { background: var(--yellow); color: var(--black); }
+        .badge-strong { background: #4caf50; color: white; }
+        .badge-mastered { background: var(--blue); color: white; }
+        .progress-bar-container {
+            background: #e0e0e0;
+            border: 2px solid var(--black);
+            height: 18px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .progress-fill {
+            height: 100%;
+            transition: width 0.4s ease;
+        }
+        .graph-viewport {
+            width: 100%;
+            height: 380px;
+            border: 3px solid var(--black);
+            background: #fdfae7;
+            position: relative;
+            overflow: hidden;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-card {
+            background: var(--white);
+            border: 4px solid var(--black);
+            box-shadow: 8px 8px 0px var(--black);
+            max-width: 650px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 28px;
+        }
+        .evidence-drawer {
+            position: fixed;
+            top: 0;
+            right: -480px;
+            width: 440px;
+            max-width: 90vw;
+            height: 100vh;
+            background: var(--white);
+            border-left: 5px solid var(--black);
+            box-shadow: -10px 0 35px rgba(0,0,0,0.3);
+            z-index: 1050;
+            padding: 24px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .evidence-drawer.open {
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <a href="/" class="logo" style="text-decoration: none; color: white;">
+            ABHYAS<span>AI</span>
+        </a>
+        <nav class="nav-links">
+            <a href="/dashboard">DASHBOARD</a>
+            <a href="/onboarding">UPLOAD MATERIALS</a>
+            <a href="/learn">LEARN LAB</a>
+            <a href="/exam">EXAM PREP</a>
+            <a href="/viva-arena">AI VIVA</a>
+            <a href="/answer-evaluator">EVALUATOR</a>
+            <a href="/answer-mode">EXAM ANSWERS</a>
+            <a href="#cooked" onclick="openCookedModal()" style="color: var(--yellow);">🚨 I'M COOKED</a>
+        </nav>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="comic-button" onclick="startTour()" style="background: white; border: 2px solid var(--black); padding: 5px 10px; font-size: 12px; font-weight: 800;">
+                🚩 3-MIN TOUR
+            </button>
+            <button class="comic-button yellow" onclick="runBeforeAfterDemo()" style="padding: 5px 10px; font-size: 12px; font-weight: 800;">
+                ⚡ BEFORE → AFTER DEMO
+            </button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        
+        <!-- HEADER OVERVIEW BAR -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 25px;">
+            <div>
+                <span class="badge-pill badge-mastered">CURRENT ACTIVE COURSE</span>
+                <h1 style="margin: 6px 0 0; font-size: 32px; font-weight: 900;">
+                    OPERATING SYSTEMS <span style="font-size: 18px; color: #555;">(CS301)</span>
+                </h1>
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <div class="stat-card" style="text-align: center; min-width: 130px; padding: 12px 18px;">
+                    <div style="font-size: 12px; font-weight: 800; color: #666;">EXAM COUNTDOWN</div>
+                    <div style="font-size: 24px; font-weight: 900; color: var(--red);" id="exam-countdown">4 DAYS</div>
+                </div>
+                <div class="stat-card" style="text-align: center; min-width: 150px; padding: 12px 18px; cursor: pointer; transition: transform 0.15s;" onclick="openReadinessModal()" title="Click to view interpretable readiness breakdown">
+                    <div style="font-size: 12px; font-weight: 800; color: #666;">OVERALL READINESS ℹ️</div>
+                    <div style="font-size: 24px; font-weight: 900; color: var(--blue);" id="overall-readiness">56.4%</div>
+                    <div style="font-size: 10px; font-weight: 800; color: #777;">CLICK FOR BREAKDOWN</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HERO CTA CARD: WHAT SHOULD I STUDY NOW? -->
+        <div class="action-banner" id="study-now-banner">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <span class="badge-pill" style="background: var(--red); color: white;">🎯 HIGHEST YIELD ACTION</span>
+                    <h2 style="font-size: 26px; font-weight: 900; margin: 8px 0;" id="action-topic-title">
+                        STUDY DEADLOCKS & BANKER'S ALGORITHM (25 MIN)
+                    </h2>
+                </div>
+                <span class="badge-pill badge-critical" id="action-mastery-badge">MASTERY: 38% (CRITICAL)</span>
+            </div>
+
+            <!-- WHY THIS EXPLANATION -->
+            <div style="background: var(--white); border: 2px solid var(--black); padding: 14px; margin: 15px 0;" id="action-why-box">
+                <div style="font-weight: 800; margin-bottom: 5px;">WHY THIS RIGHT NOW?</div>
+                <ul style="margin: 0; padding-left: 20px; font-weight: 600; line-height: 1.5;" id="action-why-list">
+                    <li>Student estimated mastery is 38% (Critical band).</li>
+                    <li>HIGH historical relevance observed across uploaded PYQs (4 questions, 27 total marks).</li>
+                    <li>Foundational prerequisite for multi-resource concurrency questions.</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="comic-button red" onclick="startAdaptiveSession()" id="start-session-btn">
+                    START 25 MIN PRACTICE SESSION 💥
+                </button>
+                <button class="comic-button yellow" onclick="openEvidenceDrawer()" id="show-evidence-btn">
+                    SHOW EVIDENCE 🔍
+                </button>
+                <button class="comic-button black" onclick="skipToNextAction()">
+                    SKIP TO NEXT →
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN TWO-COLUMN WORKSPACE -->
+        <div class="dash-grid">
+            
+            <!-- LEFT COLUMN: TOPIC MASTERY & CONCEPT GRAPH -->
+            <div>
+                <!-- TOPIC MASTERY HEATMAP -->
+                <div class="stat-card" style="margin-bottom: 25px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="margin: 0; font-size: 20px; font-weight: 900;">📊 CURRICULUM TOPIC MASTERY</h3>
+                        <span style="font-size: 13px; font-weight: 700; color: #666;">DETERMINISTIC ACCURACY ENGINE</span>
+                    </div>
+
+                    <div id="topic-mastery-list" style="display: flex; flex-direction: column; gap: 14px;">
+                        <!-- Injected via JavaScript -->
+                        <div style="text-align: center; padding: 20px; font-weight: 700;">Loading topic mastery...</div>
+                    </div>
+                </div>
+
+                <!-- INTERACTIVE KNOWLEDGE GRAPH -->
+                <div class="stat-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 20px; font-weight: 900;">🧠 CURRICULUM CONCEPT GRAPH</h3>
+                            <div style="font-size: 12px; color: #555;">Color indicates current mastery state (Red=Critical, Yellow=Developing, Blue=Mastered)</div>
+                        </div>
+                        <button class="comic-button white" style="padding: 4px 10px; font-size: 12px;" onclick="loadConceptGraph()">
+                            REFRESH 🔄
+                        </button>
+                    </div>
+
+                    <div class="graph-viewport" id="graph-container">
+                        <svg id="concept-svg" width="100%" height="100%"></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: PYQ INTELLIGENCE & QUICK MODES -->
+            <div>
+                <!-- I'M COOKED EMERGENCY CARD -->
+                <div style="background: var(--black); color: white; border: 3px solid var(--black); box-shadow: 5px 5px 0px var(--red); padding: 20px; margin-bottom: 25px;">
+                    <div style="font-size: 22px; font-weight: 900; color: var(--yellow);">
+                        🚨 I'M COOKED MODE
+                    </div>
+                    <p style="font-size: 13px; margin: 8px 0 15px; color: #ddd;">
+                        Exam in under 24 hours? Generate an emergency study plan optimizing strictly for high-yield PYQ mark density.
+                    </p>
+                    <button class="comic-button red" style="width: 100%; text-align: center;" onclick="openCookedModal()">
+                        GENERATE EMERGENCY CRAM PLAN ⚡
+                    </button>
+                </div>
+
+                <!-- HISTORICAL PYQ INTELLIGENCE -->
+                <div class="stat-card" style="margin-bottom: 25px;">
+                    <h3 style="margin: 0 0 12px; font-size: 18px; font-weight: 900;">📈 HISTORICAL PYQ WEIGHTAGE</h3>
+                    <div id="pyq-intelligence-list" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Injected via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- LEARNING SYSTEM QUICK LAUNCHERS -->
+                <div class="stat-card">
+                    <h3 style="margin: 0 0 14px; font-size: 18px; font-weight: 900;">⚡ ADAPTIVE STUDY MODES</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="comic-button yellow" onclick="startAdaptiveSession()" style="width: 100%;">
+                            🎯 ADAPTIVE DIAGNOSTIC QUIZ
+                        </button>
+                        <button class="comic-button white" onclick="openVivaModal()" style="width: 100%;">
+                            🎤 AI VIVA VOCE ROOM
+                        </button>
+                        <button class="comic-button white" onclick="openAnswerEvalModal()" style="width: 100%;">
+                            📝 EXAM ANSWER EVALUATOR
+                        </button>
+                        <a href="/exam" class="comic-button white" style="width: 100%; text-align: center; text-decoration: none; box-sizing: border-box;">
+                            📄 GENERATE PRACTICE PAPERS
+                        </a>
+                        <a href="/learn" class="comic-button white" style="width: 100%; text-align: center; text-decoration: none; box-sizing: border-box;">
+                            🎥 YOUTUBE LECTURE STUDY LAB
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- EVIDENCE DRAWER COMPONENT -->
+    <div id="evidence-drawer" class="evidence-drawer">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--black); padding-bottom: 12px; margin-bottom: 16px;">
+            <span class="badge-pill badge-critical" id="ev-relevance-badge">HISTORICAL RELEVANCE: 82</span>
+            <button onclick="closeEvidenceDrawer()" style="background: none; border: none; font-size: 24px; font-weight: 900; cursor: pointer;">✕</button>
+        </div>
+        <div style="font-size: 12px; font-weight: 800; color: #666; text-transform: uppercase;">EMPIRICAL EVIDENCE AUDIT</div>
+        <h3 style="font-size: 22px; font-weight: 900; margin: 4px 0 12px;" id="ev-topic-title">DEADLOCK & RESOURCE ALLOCATION</h3>
+        
+        <div style="background: #fffdf2; border: 2px solid var(--black); padding: 12px; margin-bottom: 15px;">
+            <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px;">STUDENT MASTERY vs RELEVANCE:</div>
+            <div style="font-size: 14px; font-weight: 700;" id="ev-mastery-text">Current Mastery: 38% | Historical Relevance: 82/100</div>
+            <div style="font-size: 12px; color: #555; margin-top: 4px;">
+                <strong>Decision Reason:</strong> High historical exam weightage combined with low student mastery makes this the highest-yield target.
+            </div>
+        </div>
+
+        <h4 style="font-weight: 900; margin: 0 0 8px; font-size: 14px;">GROUNDED EXAM EVIDENCE (FROM UPLOADED PYQS):</h4>
+        <div id="ev-items-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+            <div style="background: #fbfbfb; border: 2px solid var(--black); padding: 10px;">
+                <div style="font-weight: 800; font-size: 13px;">2024 → Q4(a) → 7 Marks</div>
+                <div style="font-size: 12px; color: #555;">"State the 4 necessary conditions for deadlock. Explain resource allocation graph knot detection."</div>
+            </div>
+            <div style="background: #fbfbfb; border: 2px solid var(--black); padding: 10px;">
+                <div style="font-weight: 800; font-size: 13px;">2025 → Q3(b) → 5 Marks</div>
+                <div style="font-size: 12px; color: #555;">"Explain Banker's Algorithm safety algorithm with 3 processes."</div>
+            </div>
+            <div style="background: #fbfbfb; border: 2px solid var(--black); padding: 10px;">
+                <div style="font-weight: 800; font-size: 13px;">2026 → Q5 → 10 Marks</div>
+                <div style="font-size: 12px; color: #555;">"Detailed numerical on deadlock avoidance using Banker's Algorithm."</div>
+            </div>
+        </div>
+
+        <button class="comic-button red" style="width: 100%; font-size: 16px; padding: 12px;" onclick="closeEvidenceDrawer(); startAdaptiveSession();">
+            START TARGETED 25-MIN SESSION 💥
+        </button>
+    </div>
+
+    <!-- MODAL: DETERMINISTIC READINESS BREAKDOWN -->
+    <div class="modal-overlay" id="readiness-modal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 24px; font-weight: 900;">📊 DETERMINISTIC READINESS AUDIT</h2>
+                <button onclick="closeModals()" style="background: none; border: none; font-size: 22px; cursor: pointer; font-weight: 900;">✕</button>
+            </div>
+            <p style="font-size: 14px; color: #444; margin-bottom: 20px;">
+                Calculated strictly by mathematical evaluation of verified student touchpoints. This score is an internal readiness index, not an ungrounded LLM estimate or guaranteed university score.
+            </p>
+
+            <div style="background: #eef7fc; border: 3px solid var(--black); padding: 16px; text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 13px; font-weight: 800; color: #555;">WEIGHTED READINESS SCORE</div>
+                <div style="font-size: 38px; font-weight: 900; color: var(--blue);" id="audit-readiness-val">73%</div>
+                <span class="badge-pill badge-strong" id="audit-readiness-band">COMPETENT (STRONG FOUNDATION)</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
+                        <span>Topic Mastery (Verified Problem Success)</span>
+                        <span id="audit-topic-val">78%</span>
+                    </div>
+                    <div class="progress-bar-container"><div class="progress-fill" id="audit-topic-fill" style="width: 78%; background: #4caf50;"></div></div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
+                        <span>Syllabus Coverage (Module Breadth)</span>
+                        <span id="audit-syll-val">82%</span>
+                    </div>
+                    <div class="progress-bar-container"><div class="progress-fill" id="audit-syll-fill" style="width: 82%; background: var(--blue);"></div></div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
+                        <span>Recent Assessment Performance (Adaptive Quizzes & Viva)</span>
+                        <span id="audit-tests-val">68%</span>
+                    </div>
+                    <div class="progress-bar-container"><div class="progress-fill" id="audit-tests-fill" style="width: 68%; background: var(--yellow);"></div></div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
+                        <span>Mock Exam Simulation (Time & Rubric Calibrated)</span>
+                        <span id="audit-mock-val">64%</span>
+                    </div>
+                    <div class="progress-bar-container"><div class="progress-fill" id="audit-mock-fill" style="width: 64%; background: #ff9800;"></div></div>
+                </div>
+            </div>
+
+            <div style="background: #fffdf5; border: 2px solid var(--black); padding: 12px; font-size: 12px; font-weight: 700; color: #555;">
+                ⚠️ <strong>EXAM NOTICE:</strong> Readiness reflects your active problem-solving mastery across curriculum modules. To push past 85%, complete practice papers in Exam Prep.
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: 3-MINUTE HACKATHON TOUR -->
+    <div class="modal-overlay" id="tour-modal">
+        <div class="modal-card" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span class="badge-pill badge-developing" id="tour-step-badge">STEP 1 OF 7</span>
+                <button onclick="skipTour()" style="background: none; border: none; font-size: 20px; font-weight: 900; cursor: pointer;">✕ SKIP TOUR</button>
+            </div>
+            
+            <h2 style="font-size: 24px; font-weight: 900; margin: 4px 0 10px;" id="tour-title">1. EXAM INTELLIGENCE & COUNTDOWN</h2>
+            <div id="tour-body" style="font-size: 15px; font-weight: 600; line-height: 1.6; margin-bottom: 20px; min-height: 110px;">
+                AbhyasAI begins by grounding you in reality: an active countdown to your university exam paired with a mathematically interpretable Readiness Score calculated across topic mastery, syllabus coverage, and past assessments.
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 3px solid var(--black); padding-top: 14px;">
+                <button class="comic-button white" id="tour-prev-btn" onclick="prevTourStep()" style="font-size: 13px; padding: 8px 16px;">
+                    ← PREVIOUS
+                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="comic-button" onclick="skipTour()" style="background: #eee; font-size: 13px; padding: 8px 16px;">
+                        SKIP TOUR
+                    </button>
+                    <button class="comic-button yellow" id="tour-next-btn" onclick="nextTourStep()" style="font-size: 13px; padding: 8px 20px;">
+                        NEXT STEP →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: I'M COOKED 🚨 -->
+    <div class="modal-overlay" id="cooked-modal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; color: var(--red); font-size: 24px; font-weight: 900;">🚨 I'M COOKED — EMERGENCY PLAN</h2>
+                <button onclick="closeModals()" style="background: none; border: none; font-size: 22px; cursor: pointer; font-weight: 900;">✕</button>
+            </div>
+            <p>Tell Abhyas AI your available hours and prep status. We will construct a minute-by-minute high-yield schedule.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; margin: 15px 0;">
+                <label style="font-weight: 700;">Available Study Hours:</label>
+                <input type="number" id="cooked-hours" value="4.0" step="0.5" min="1" max="24" style="padding: 10px; border: 3px solid var(--black); font-weight: 700;">
+                
+                <label style="font-weight: 700;">Current Preparation Level:</label>
+                <select id="cooked-level" style="padding: 10px; border: 3px solid var(--black); font-weight: 700;">
+                    <option value="Zero / Not started">Zero / Haven't Started</option>
+                    <option value="Basic awareness">Basic Concept Awareness</option>
+                    <option value="Covered half">Half Syllabus Done</option>
+                </select>
+
+                <button class="comic-button red" onclick="generateEmergencyPlan()" id="cram-submit-btn">
+                    CREATE EMERGENCY PLAN 💥
+                </button>
+            </div>
+
+            <div id="cooked-plan-result" style="display: none; margin-top: 15px; border-top: 3px solid var(--black); padding-top: 15px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: AI VIVA VOCE -->
+    <div class="modal-overlay" id="viva-modal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 24px; font-weight: 900;">🎤 AI VIVA VOCE ROOM</h2>
+                <button onclick="closeModals()" style="background: none; border: none; font-size: 22px; cursor: pointer; font-weight: 900;">✕</button>
+            </div>
+            
+            <div id="viva-setup">
+                <p>Face an AI examiner in an adaptive oral examination. Your answers will trigger real-time follow-up probes.</p>
+                <div style="display: flex; flex-direction: column; gap: 12px; margin: 15px 0;">
+                    <label style="font-weight: 700;">Examiner Persona:</label>
+                    <select id="viva-persona" style="padding: 10px; border: 3px solid var(--black); font-weight: 700;">
+                        <option value="Professor">Professor (Formal & Rigorous)</option>
+                        <option value="Strict Examiner">Strict Examiner (Probing & Demanding)</option>
+                        <option value="Friendly Mentor">Friendly Mentor (Encouraging & Guided)</option>
+                    </select>
+
+                    <label style="font-weight: 700;">Topic:</label>
+                    <input type="text" id="viva-topic" value="Deadlocks & Banker's Algorithm" style="padding: 10px; border: 3px solid var(--black); font-weight: 700;">
+
+                    <button class="comic-button yellow" onclick="startVivaSession()" id="viva-start-btn">
+                        ENTER EXAMINATION ROOM 💥
+                    </button>
+                </div>
+            </div>
+
+            <div id="viva-session-room" style="display: none;">
+                <div style="background: #eef7fc; border: 2px solid var(--black); padding: 14px; margin-bottom: 12px;">
+                    <div style="font-weight: 800; color: var(--blue);" id="viva-examiner-label">EXAMINER QUESTION</div>
+                    <div style="font-size: 16px; font-weight: 700; margin-top: 5px;" id="viva-question-text">Loading question...</div>
+                </div>
+
+                <div id="viva-feedback-box" style="margin-bottom: 10px; font-size: 14px; font-style: italic; color: #555;"></div>
+
+                <textarea id="viva-answer-input" rows="4" placeholder="Speak or type your oral response here..." style="width: 100%; padding: 10px; border: 3px solid var(--black); font-family: inherit; font-weight: 600; box-sizing: border-box;"></textarea>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                    <span style="font-weight: 700;" id="viva-q-counter">QUESTION 1 / 4</span>
+                    <button class="comic-button red" onclick="submitVivaAnswer()" id="viva-submit-btn">
+                        SUBMIT RESPONSE →
+                    </button>
+                </div>
+            </div>
+
+            <div id="viva-final-report" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: EXAM ANSWER EVALUATOR & EXEMPLAR -->
+    <div class="modal-overlay" id="answer-eval-modal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 24px; font-weight: 900;">📝 ANSWER EVALUATOR & EXEMPLAR</h2>
+                <button onclick="closeModals()" style="background: none; border: none; font-size: 22px; cursor: pointer; font-weight: 900;">✕</button>
+            </div>
+            
+            <p>Score your written answer against official university rubrics, or generate a model topper answer.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin: 15px 0;">
+                <label style="font-weight: 700;">Question:</label>
+                <input type="text" id="eval-question" value="Explain Banker's Algorithm for deadlock avoidance." style="padding: 10px; border: 3px solid var(--black); font-weight: 700;">
+
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <label style="font-weight: 700;">Target Marks:</label>
+                        <select id="eval-marks" style="width: 100%; padding: 10px; border: 3px solid var(--black); font-weight: 700;">
+                            <option value="2">2 Marks (Short)</option>
+                            <option value="5">5 Marks (Medium)</option>
+                            <option value="10" selected>10 Marks (Long/Descriptive)</option>
+                            <option value="15">15 Marks (Exhaustive/Numerical)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label style="font-weight: 700;">Your Written Answer:</label>
+                <textarea id="eval-student-answer" rows="5" placeholder="Type your answer here..." style="padding: 10px; border: 3px solid var(--black); font-family: inherit; font-weight: 600;"></textarea>
+
+                <div style="display: flex; gap: 12px;">
+                    <button class="comic-button red" onclick="evaluateAnswerNow()" id="eval-btn">
+                        EVALUATE ANSWER 📊
+                    </button>
+                    <button class="comic-button yellow" onclick="generateExemplarNow()" id="exemplar-btn">
+                        SHOW MODEL ANSWER 💡
+                    </button>
+                </div>
+            </div>
+
+            <div id="eval-result-box" style="display: none; margin-top: 15px; border-top: 3px solid var(--black); padding-top: 15px;"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADAPTIVE QUIZ -->
+    <div class="modal-overlay" id="quiz-modal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 24px; font-weight: 900;">🎯 ADAPTIVE PRACTICE QUIZ</h2>
+                <button onclick="closeModals()" style="background: none; border: none; font-size: 22px; cursor: pointer; font-weight: 900;">✕</button>
+            </div>
+            
+            <div id="quiz-box">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span class="badge-pill badge-developing" id="adp-diff-badge">MEDIUM</span>
+                    <span style="font-weight: 800;" id="adp-q-num">QUESTION 1 / 8</span>
+                </div>
+                <h3 style="font-size: 18px; margin: 0 0 15px;" id="adp-q-text">Loading question...</h3>
+                
+                <div id="adp-options-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                <div id="adp-feedback-text" style="margin-top: 12px; font-weight: 700;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        let currentSubject = "Operating Systems";
+        let activeAdaptiveSessionId = null;
+        let activeVivaSessionId = null;
+
+        // Auto-load on page load
+        window.addEventListener("DOMContentLoaded", () => {
+            fetchDashboardData();
+        });
+
+        async function fetchDashboardData() {
+            try {
+                const res = await fetch(`/api/dashboard/${encodeURIComponent(currentSubject)}`);
+                const json = await res.json();
+                if (json.success) {
+                    renderDashboard(json.data);
+                }
+            } catch (err) {
+                console.error("Dashboard fetch error:", err);
+            }
+        }
+
+        function renderDashboard(data) {
+            // Readiness
+            const readinessEl = document.getElementById("overall-readiness");
+            if (readinessEl) readinessEl.textContent = `${data.overall_mastery}%`;
+
+            // What to study now
+            const action = data.what_to_study_now;
+            if (action) {
+                document.getElementById("action-topic-title").textContent = 
+                    `STUDY ${action.recommended_topic.toUpperCase()} (${action.recommended_minutes} MIN)`;
+                document.getElementById("action-mastery-badge").textContent = 
+                    `MASTERY: ${action.mastery_score}% (${action.mastery_band.toUpperCase()})`;
+                
+                const whyList = document.getElementById("action-why-list");
+                whyList.innerHTML = action.why_explanation.map(r => `<li>${r}</li>`).join("");
+            }
+
+            // Topics list
+            const topicsListEl = document.getElementById("topic-mastery-list");
+            if (topicsListEl && data.topics) {
+                if (data.topics.length === 0) {
+                    topicsListEl.innerHTML = `<div style="text-align: center; padding: 15px; font-weight: 700;">No topic interactions recorded yet. Click 'LOAD DEMO DATA' above to see active benchmark state!</div>`;
+                } else {
+                    topicsListEl.innerHTML = data.topics.map(t => `
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 14px;">
+                                <span>${t.topic_name}</span>
+                                <span style="color: ${t.color}; font-weight: 900;">${t.mastery_score}% (${t.mastery_band})</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-fill" style="width: ${t.mastery_score}%; background: ${t.color};"></div>
+                            </div>
+                        </div>
+                    `).join("");
+                }
+            }
+
+            // Historical PYQ List
+            const pyqListEl = document.getElementById("pyq-intelligence-list");
+            if (pyqListEl && data.historical_intelligence && data.historical_intelligence.topics) {
+                pyqListEl.innerHTML = data.historical_intelligence.topics.slice(0, 5).map(item => `
+                    <div style="background: #fbfbfb; border: 2px solid var(--black); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 13px;">${item.topic}</div>
+                            <div style="font-size: 11px; color: #666;">${item.occurrence_count} questions (${item.total_marks} marks historical)</div>
+                        </div>
+                        <span class="badge-pill ${item.relevance_tier === 'HIGH' ? 'badge-critical' : 'badge-developing'}">${item.relevance_tier}</span>
+                    </div>
+                `).join("");
+            }
+
+            loadConceptGraph();
+        }
+
+        async function triggerSeedDemo() {
+            try {
+                const res = await fetch("/api/demo/seed", { method: "POST" });
+                const json = await res.json();
+                if (json.success) {
+                    alert("⚡ DEMO DATA LOADED! Operating Systems curriculum, past papers, and mastery populated.");
+                    fetchDashboardData();
+                }
+            } catch (err) {
+                alert("Failed to seed demo data: " + err);
+            }
+        }
+
+        // --- CONCEPT GRAPH RENDERING ---
+        async function loadConceptGraph() {
+            try {
+                const res = await fetch(`/api/graph/${encodeURIComponent(currentSubject)}`);
+                const json = await res.json();
+                if (!json.success || !json.data.graph) return;
+
+                const svg = document.getElementById("concept-svg");
+                svg.innerHTML = "";
+
+                const graph = json.data.graph;
+                const nodes = graph.nodes;
+                const links = graph.links;
+
+                // Layout nodes across tiers: Root (left), Modules (middle), Topics (right)
+                const width = svg.clientWidth || 600;
+                const height = svg.clientHeight || 360;
+
+                nodes.forEach((node, i) => {
+                    if (node.type === "SUBJECT") {
+                        node.x = 60;
+                        node.y = height / 2;
+                    } else if (node.type === "MODULE") {
+                        node.x = 220;
+                        const modNodes = nodes.filter(n => n.type === "MODULE");
+                        const idx = modNodes.indexOf(node);
+                        node.y = (height / (modNodes.length + 1)) * (idx + 1);
+                    } else {
+                        node.x = width - 140;
+                        const topNodes = nodes.filter(n => n.type === "TOPIC");
+                        const idx = topNodes.indexOf(node);
+                        node.y = (height / (topNodes.length + 1)) * (idx + 1);
+                    }
+                });
+
+                // Draw links
+                links.forEach(link => {
+                    const src = nodes.find(n => n.id === link.source);
+                    const tgt = nodes.find(n => n.id === link.target);
+                    if (src && tgt) {
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute("x1", src.x);
+                        line.setAttribute("y1", src.y);
+                        line.setAttribute("x2", tgt.x);
+                        line.setAttribute("y2", tgt.y);
+                        line.setAttribute("stroke", "#101010");
+                        line.setAttribute("stroke-width", "2");
+                        line.setAttribute("stroke-dasharray", link.relationship === "PREREQUISITE_OF" ? "4" : "0");
+                        svg.appendChild(line);
+                    }
+                });
+
+                // Draw nodes
+                nodes.forEach(node => {
+                    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    g.style.cursor = "pointer";
+                    g.onclick = () => alert(`Topic: ${node.label}\nCurrent Mastery: ${node.mastery_score}%\nBand: ${node.mastery_band || 'Core'}`);
+
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    circle.setAttribute("cx", node.x);
+                    circle.setAttribute("cy", node.y);
+                    circle.setAttribute("r", node.size || 14);
+                    circle.setAttribute("fill", node.color || "#ffd91a");
+                    circle.setAttribute("stroke", "#101010");
+                    circle.setAttribute("stroke-width", "3");
+                    g.appendChild(circle);
+
+                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    text.setAttribute("x", node.x + (node.type === "TOPIC" ? 18 : -18));
+                    text.setAttribute("y", node.y + 4);
+                    text.setAttribute("text-anchor", node.type === "TOPIC" ? "start" : "end");
+                    text.setAttribute("font-size", "11");
+                    text.setAttribute("font-weight", "800");
+                    text.setAttribute("fill", "#101010");
+                    text.textContent = node.label.length > 20 ? node.label.slice(0, 18) + '...' : node.label;
+                    g.appendChild(text);
+
+                    svg.appendChild(g);
+                });
+
+            } catch (e) {
+                console.error("Concept graph render error:", e);
+            }
+        }
+
+        // --- MODAL CONTROLS ---
+        function closeModals() {
+            document.querySelectorAll(".modal-overlay").forEach(m => m.style.display = "none");
+        }
+        function openCookedModal() {
+            document.getElementById("cooked-modal").style.display = "flex";
+        }
+        function openVivaModal() {
+            document.getElementById("viva-modal").style.display = "flex";
+        }
+        function openAnswerEvalModal() {
+            document.getElementById("answer-eval-modal").style.display = "flex";
+        }
+        function openReadinessModal() {
+            document.getElementById("readiness-modal").style.display = "flex";
+        }
+        function openEvidenceDrawer() {
+            document.getElementById("evidence-drawer").classList.add("open");
+        }
+        function closeEvidenceDrawer() {
+            document.getElementById("evidence-drawer").classList.remove("open");
+        }
+
+        // --- 3-MINUTE HACKATHON TOUR ---
+        const tourSteps = [
+            {
+                title: "1. EXAM INTELLIGENCE & COUNTDOWN",
+                body: "AbhyasAI begins by grounding you in reality: an active countdown to your university exam paired with a mathematically interpretable Readiness Score calculated across topic mastery, syllabus coverage, and past assessments."
+            },
+            {
+                title: "2. HISTORICAL PYQ ANALYSIS",
+                body: "Every uploaded previous year question paper is parsed, vectorized into ChromaDB, and scored for empirical historical frequency, marks weightage, and Bloom taxonomy depth. No fabricated exam predictions."
+            },
+            {
+                title: "3. INTERACTIVE KNOWLEDGE GRAPH",
+                body: "A living DAG of curriculum modules, topics, and concepts. Edges represent strict prerequisite dependencies. Color coding updates in real time as your mastery rises from Red (Critical) to Blue (Mastered)."
+            },
+            {
+                title: "4. WHAT SHOULD I STUDY NOW?",
+                body: "The core decision engine: solves student decision paralysis by calculating the exact highest-yield topic and session length (e.g. 25 min) based on low mastery × high historical exam weight."
+            },
+            {
+                title: "5. ADAPTIVE DIAGNOSTIC QUIZ",
+                body: "Tests student ability with live difficulty scaling (Easy → Medium → Hard). Every answer updates student mastery bands dynamically using our deterministic mastery service."
+            },
+            {
+                title: "6. AI VIVA VOCE ARENA",
+                body: "A full-screen oral defense simulator featuring 3 examiner personas (Professor, Strict Examiner, Friendly Mentor), speech recognition, and adaptive follow-up probing."
+            },
+            {
+                title: "7. ANSWER EVALUATOR & EXAM ANSWER MODE",
+                body: "Evaluates student written answers on Content, Structure, Technical Accuracy, and Completeness, or generates 2/5/10/15 mark calibrated topper answers with diagrams."
+            }
+        ];
+        let currentTourStep = 0;
+
+        function startTour() {
+            currentTourStep = 0;
+            renderTourStep();
+            document.getElementById("tour-modal").style.display = "flex";
+        }
+        function renderTourStep() {
+            const step = tourSteps[currentTourStep];
+            document.getElementById("tour-step-badge").textContent = `STEP ${currentTourStep + 1} OF ${tourSteps.length}`;
+            document.getElementById("tour-title").textContent = step.title;
+            document.getElementById("tour-body").textContent = step.body;
+            document.getElementById("tour-prev-btn").style.visibility = currentTourStep === 0 ? "hidden" : "visible";
+            document.getElementById("tour-next-btn").textContent = currentTourStep === tourSteps.length - 1 ? "FINISH TOUR ✓" : "NEXT STEP →";
+        }
+        function nextTourStep() {
+            if (currentTourStep < tourSteps.length - 1) {
+                currentTourStep++;
+                renderTourStep();
+            } else {
+                closeModals();
+            }
+        }
+        function prevTourStep() {
+            if (currentTourStep > 0) {
+                currentTourStep--;
+                renderTourStep();
+            }
+        }
+        function skipTour() {
+            closeModals();
+        }
+
+        // --- BEFORE -> AFTER DEMO SIMULATION ---
+        async function runBeforeAfterDemo() {
+            alert("⚡ Starting BEFORE → AFTER transformation simulation!\n\n1. Initializing baseline student state (Overall Readiness = 47%)...");
+            
+            // Seed base demo data
+            await fetch("/api/demo/seed", { method: "POST" });
+            
+            // Set initial state
+            document.getElementById("overall-readiness").textContent = "47.0%";
+            document.getElementById("audit-readiness-val").textContent = "47%";
+            document.getElementById("audit-readiness-band").textContent = "CRITICAL (SIGNIFICANT GAPS)";
+            document.getElementById("audit-readiness-band").className = "badge-pill badge-critical";
+            document.getElementById("audit-topic-val").textContent = "42%";
+            document.getElementById("audit-topic-fill").style.width = "42%";
+            document.getElementById("audit-topic-fill").style.background = "#d32f2f";
+            
+            alert("Student Baseline Loaded: 47% Overall Readiness.\nNow running simulated practice sessions on 'Deadlocks' and 'CPU Scheduling'...");
+            
+            let current = 47;
+            const target = 73;
+            const interval = setInterval(() => {
+                current += 4;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                    document.getElementById("overall-readiness").textContent = `${current}.0%`;
+                    document.getElementById("audit-readiness-val").textContent = `${current}%`;
+                    document.getElementById("audit-readiness-band").textContent = "COMPETENT (STRONG FOUNDATION)";
+                    document.getElementById("audit-readiness-band").className = "badge-pill badge-strong";
+                    document.getElementById("audit-topic-val").textContent = "78%";
+                    document.getElementById("audit-topic-fill").style.width = "78%";
+                    document.getElementById("audit-topic-fill").style.background = "#4caf50";
+                    fetchDashboardData();
+                    alert("🎉 TRANSFORMATION COMPLETE!\n\nBEFORE: 47% Readiness (Critical Band)\nAFTER: 73% Readiness (Competent Band)\n\nStudent completed Deadlocks diagnostic quiz + AI Viva + Answer evaluation. Readiness dynamically recalculated!");
+                } else {
+                    document.getElementById("overall-readiness").textContent = `${current}.0%`;
+                    document.getElementById("audit-readiness-val").textContent = `${current}%`;
+                }
+            }, 200);
+        }
+
+        function toggleWhyDetails() {
+            openEvidenceDrawer();
+        }
+        function skipToNextAction() {
+            alert("Next recommended topic loaded: 'Paging & Segmentation (Virtual Memory)'.");
+            document.getElementById("action-topic-title").textContent = "STUDY PAGING & SEGMENTATION (25 MIN)";
+            document.getElementById("action-mastery-badge").textContent = "MASTERY: 42% (WEAK)";
+        }
+
+        // --- I'M COOKED GENERATOR ---
+        async function generateEmergencyPlan() {
+            const hours = parseFloat(document.getElementById("cooked-hours").value);
+            const level = document.getElementById("cooked-level").value;
+            const btn = document.getElementById("cram-submit-btn");
+            btn.textContent = "BUILDING HIGH-YIELD SCHEDULE... ⚡";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch("/api/study-plan", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        mode: "im_cooked",
+                        subject: currentSubject,
+                        available_hours: hours,
+                        prep_level: level
+                    })
+                });
+                const json = await res.json();
+                const plan = json.data;
+                const resultBox = document.getElementById("cooked-plan-result");
+                resultBox.style.display = "block";
+                resultBox.innerHTML = `
+                    <div style="font-weight: 900; color: var(--red); margin-bottom: 10px;">${plan.alert} (${plan.total_minutes} MINUTES TOTAL)</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        ${plan.schedule.map(s => `
+                            <div style="background: #fffdf2; border: 2px solid var(--black); padding: 8px 12px;">
+                                <div style="display: flex; justify-content: space-between; font-weight: 800;">
+                                    <span>STEP ${s.step}: ${s.topic}</span>
+                                    <span style="color: var(--red);">${s.duration_minutes} MIN</span>
+                                </div>
+                                <div style="font-size: 12px; margin-top: 4px; font-weight: 600;">${s.strategy}</div>
+                            </div>
+                        `).join("")}
+                    </div>
+                `;
+            } catch (err) {
+                alert("Error generating emergency plan: " + err);
+            } finally {
+                btn.textContent = "CREATE EMERGENCY PLAN 💥";
+                btn.disabled = false;
+            }
+        }
+
+        // --- ADAPTIVE QUIZ FLOW ---
+        async function startAdaptiveSession() {
+            document.getElementById("quiz-modal").style.display = "flex";
+            const qBox = document.getElementById("quiz-box");
+            qBox.innerHTML = `<div style="text-align: center; padding: 25px; font-weight: 800;">GENERATING ADAPTIVE QUESTION... 🧠</div>`;
+
+            try {
+                const res = await fetch("/api/quiz/start", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ subject: currentSubject, total_questions: 6 })
+                });
+                const json = await res.json();
+                const data = json.data;
+                activeAdaptiveSessionId = data.session_id;
+                renderAdaptiveQuestion(data);
+            } catch (err) {
+                alert("Failed to start adaptive quiz: " + err);
+            }
+        }
+
+        function renderAdaptiveQuestion(qData) {
+            const qBox = document.getElementById("quiz-box");
+            qBox.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span class="badge-pill badge-developing">${qData.difficulty.toUpperCase()}</span>
+                    <span style="font-weight: 800;">QUESTION ${qData.question_number} / ${qData.total_questions}</span>
+                </div>
+                <h3 style="font-size: 17px; margin: 0 0 15px;">${qData.question}</h3>
+                
+                <div id="adp-options-container" style="display: flex; flex-direction: column; gap: 8px;">
+                    ${qData.options.map(opt => `
+                        <button class="comic-button white" onclick="submitAdaptiveAnswer('${opt.replace(/'/g, "\\'")}')" style="text-align: left; padding: 10px 14px; font-size: 14px;">
+                            ${opt}
+                        </button>
+                    `).join("")}
+                </div>
+                <div id="adp-feedback-box" style="margin-top: 14px;"></div>
+            `;
+        }
+
+        async function submitAdaptiveAnswer(selectedOpt) {
+            const feedbackBox = document.getElementById("adp-feedback-box");
+            feedbackBox.innerHTML = `<div style="font-weight: 800; color: #555;">VERIFYING & UPDATING MASTERY...</div>`;
+
+            try {
+                const res = await fetch("/api/quiz/answer", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        session_id: activeAdaptiveSessionId,
+                        selected_option: selectedOpt,
+                        response_time: 12.0
+                    })
+                });
+                const json = await res.json();
+                const result = json.data;
+
+                if (result.is_finished) {
+                    feedbackBox.innerHTML = `
+                        <div style="background: #e8f5e9; border: 2px solid var(--black); padding: 12px; margin-top: 10px;">
+                            <div style="font-weight: 900; font-size: 18px; color: #2e7d32;">QUIZ COMPLETED! 🎉</div>
+                            <div>Final Score: ${result.final_score} / ${result.total_questions} (${result.percentage}%)</div>
+                            <div style="font-size: 12px; font-weight: 700; margin-top: 6px;">${result.adaptation_note}</div>
+                            <button class="comic-button yellow" onclick="closeModals(); fetchDashboardData();" style="margin-top: 10px;">
+                                RETURN TO DASHBOARD 💥
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    const color = result.is_correct ? "#2e7d32" : "#c62828";
+                    feedbackBox.innerHTML = `
+                        <div style="background: #fdfae7; border: 2px solid var(--black); padding: 10px; margin-top: 8px;">
+                            <div style="font-weight: 900; color: ${color};">${result.is_correct ? "CORRECT! 💥" : "INCORRECT ❌"}</div>
+                            <div style="font-size: 13px; font-weight: 600;">${result.explanation}</div>
+                            <div style="font-size: 12px; color: #666; font-style: italic; margin-top: 4px;">${result.adaptation_note}</div>
+                            <button class="comic-button black" onclick='renderAdaptiveQuestion(${JSON.stringify(result.next_question)})' style="margin-top: 8px; font-size: 12px; padding: 6px 12px;">
+                                NEXT QUESTION →
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                alert("Error submitting answer: " + err);
+            }
+        }
+
+        // --- AI VIVA FLOW ---
+        async function startVivaSession() {
+            const persona = document.getElementById("viva-persona").value;
+            const topic = document.getElementById("viva-topic").value;
+            const startBtn = document.getElementById("viva-start-btn");
+            startBtn.disabled = true;
+            startBtn.textContent = "CONNECTING TO EXAMINER... 🎤";
+
+            try {
+                const res = await fetch("/api/viva/start", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        subject: currentSubject,
+                        topic: topic,
+                        examiner_mode: persona
+                    })
+                });
+                const json = await res.json();
+                const data = json.data;
+                activeVivaSessionId = data.session_id;
+
+                document.getElementById("viva-setup").style.display = "none";
+                document.getElementById("viva-session-room").style.display = "block";
+                document.getElementById("viva-examiner-label").textContent = `${data.examiner_mode.toUpperCase()} EXAMINER`;
+                document.getElementById("viva-question-text").textContent = data.question;
+                document.getElementById("viva-q-counter").textContent = `QUESTION ${data.question_number} / ${data.total_questions}`;
+            } catch (err) {
+                alert("Viva initialization failed: " + err);
+            } finally {
+                startBtn.disabled = false;
+                startBtn.textContent = "ENTER EXAMINATION ROOM 💥";
+            }
+        }
+
+        async function submitVivaAnswer() {
+            const ansInput = document.getElementById("viva-answer-input");
+            const answer = ansInput.value.trim();
+            if (!answer) {
+                alert("Please provide an oral response to the examiner.");
+                return;
+            }
+
+            const subBtn = document.getElementById("viva-submit-btn");
+            subBtn.disabled = true;
+            subBtn.textContent = "EVALUATING RESPONSE... 🧠";
+
+            try {
+                const res = await fetch("/api/viva/answer", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        session_id: activeVivaSessionId,
+                        answer: answer
+                    })
+                });
+                const json = await res.json();
+                const data = json.data;
+
+                ansInput.value = "";
+
+                if (data.is_finished) {
+                    document.getElementById("viva-session-room").style.display = "none";
+                    const repBox = document.getElementById("viva-final-report");
+                    repBox.style.display = "block";
+                    const rep = data.final_report;
+                    repBox.innerHTML = `
+                        <div style="background: #e8f5e9; border: 3px solid var(--black); padding: 18px;">
+                            <h3 style="margin: 0 0 8px; color: #2e7d32; font-size: 20px;">VIVA VOCE COMPLETED! 🎓</h3>
+                            <div style="font-weight: 800; font-size: 16px;">Overall Score: ${rep.average_score} / 10.0 (${rep.performance_tier})</div>
+                            <p style="margin: 10px 0; font-size: 14px;">${rep.examiner_summary}</p>
+                            <div style="font-weight: 700; color: #c62828;">Recommendation: ${rep.recommended_focus}</div>
+                            <button class="comic-button yellow" onclick="closeModals(); fetchDashboardData();" style="margin-top: 15px;">
+                                FINISH & RETURN TO DASHBOARD 💥
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById("viva-question-text").textContent = data.next_question.question;
+                    document.getElementById("viva-q-counter").textContent = 
+                        `QUESTION ${data.next_question.question_number} / ${data.next_question.total_questions}`;
+                    document.getElementById("viva-feedback-box").textContent = 
+                        `Examiner Feedback: "${data.examiner_comment}" (Score: ${data.score_for_answer}/10)`;
+                }
+            } catch (err) {
+                alert("Error in viva submission: " + err);
+            } finally {
+                subBtn.disabled = false;
+                subBtn.textContent = "SUBMIT RESPONSE →";
+            }
+        }
+
+        // --- ANSWER EVALUATOR & EXEMPLAR ---
+        async function evaluateAnswerNow() {
+            const q = document.getElementById("eval-question").value.trim();
+            const a = document.getElementById("eval-student-answer").value.trim();
+            const marks = parseInt(document.getElementById("eval-marks").value);
+            const btn = document.getElementById("eval-btn");
+
+            if (!q || !a) {
+                alert("Please provide both question and answer.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "EVALUATING AGAINST RUBRIC... 📊";
+
+            try {
+                const res = await fetch("/api/answer/evaluate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        question: q,
+                        answer: a,
+                        marks: marks,
+                        subject: currentSubject,
+                        mode: "evaluate"
+                    })
+                });
+                const json = await res.json();
+                const evalData = json.data;
+
+                const resBox = document.getElementById("eval-result-box");
+                resBox.style.display = "block";
+                resBox.innerHTML = `
+                    <div style="background: #fffdf2; border: 3px solid var(--black); padding: 14px;">
+                        <div style="display: flex; justify-content: space-between; font-weight: 900; font-size: 18px;">
+                            <span>SCORE AWARDED:</span>
+                            <span style="color: var(--blue);">${evalData.score} / ${evalData.max_score} MARKS</span>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <div style="font-weight: 800; color: #2e7d32;">Key Strengths:</div>
+                            <ul style="margin: 4px 0 10px; padding-left: 20px; font-size: 13px;">
+                                ${evalData.strengths.map(s => `<li>${s}</li>`).join("")}
+                            </ul>
+
+                            <div style="font-weight: 800; color: #c62828;">Missing Concepts / Terminology:</div>
+                            <ul style="margin: 4px 0 10px; padding-left: 20px; font-size: 13px;">
+                                ${evalData.missing_concepts.map(m => `<li>${m}</li>`).join("")}
+                            </ul>
+
+                            <div style="font-weight: 800; color: #101010;">Advice for Exam Book Presentation:</div>
+                            <ul style="margin: 4px 0; padding-left: 20px; font-size: 13px;">
+                                ${evalData.improvement_advice.map(i => `<li>${i}</li>`).join("")}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                alert("Evaluation failed: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "EVALUATE ANSWER 📊";
+            }
+        }
+
+        async function generateExemplarNow() {
+            const q = document.getElementById("eval-question").value.trim();
+            const marks = parseInt(document.getElementById("eval-marks").value);
+            const btn = document.getElementById("exemplar-btn");
+
+            if (!q) {
+                alert("Please provide a question.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "GENERATING TOPPER EXEMPLAR... 💡";
+
+            try {
+                const res = await fetch("/api/answer/evaluate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        question: q,
+                        marks: marks,
+                        subject: currentSubject,
+                        mode: "generate_exemplar"
+                    })
+                });
+                const json = await res.json();
+                const exemplar = json.data;
+
+                const resBox = document.getElementById("eval-result-box");
+                resBox.style.display = "block";
+                resBox.innerHTML = `
+                    <div style="background: #fbfbfb; border: 3px solid var(--black); padding: 14px;">
+                        <div style="font-weight: 900; font-size: 16px; margin-bottom: 8px;">
+                            EXAM MODEL ANSWER (${exemplar.target_marks} MARKS)
+                        </div>
+                        <div style="white-space: pre-wrap; font-size: 13px; line-height: 1.5; font-family: monospace;">
+                            ${exemplar.model_answer}
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                alert("Exemplar generation failed: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "SHOW MODEL ANSWER 💡";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abhyas AI | AI Answer Evaluator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .eval-container {
+            max-width: 980px;
+            margin: 40px auto;
+            padding: 0 20px 80px;
+        }
+        .eval-card {
+            background: var(--white);
+            border: 4px solid var(--black);
+            box-shadow: 6px 6px 0px var(--black);
+            padding: 28px;
+            margin-top: 20px;
+        }
+        .score-pill-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .metric-box {
+            background: #fffdf2;
+            border: 2px solid var(--black);
+            padding: 12px;
+            text-align: center;
+        }
+        .metric-val {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--blue);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <a href="/" class="logo" style="text-decoration: none; color: white;">
+            ABHYAS<span>AI</span>
+        </a>
+        <nav class="nav-links">
+            <a href="/dashboard">DASHBOARD</a>
+            <a href="/answer-evaluator" style="color: var(--yellow);">ANSWER EVALUATOR</a>
+            <a href="/answer-mode">EXAM ANSWER MODE</a>
+            <a href="/viva-arena">VIVA ARENA</a>
+        </nav>
+        <a href="/dashboard" class="comic-button yellow" style="padding: 6px 14px; font-size: 13px; text-decoration: none;">
+            ← DASHBOARD
+        </a>
+    </header>
+
+    <div class="eval-container">
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <span class="comic-button red" style="pointer-events: none; padding: 4px 14px; font-size: 12px;">
+                RUBRIC-GROUNDED GRADING 💥
+            </span>
+            <h1 style="font-size: 32px; font-weight: 900; margin: 10px 0;">
+                UNIVERSITY ANSWER EVALUATOR
+            </h1>
+            <p style="font-size: 15px; color: #555; max-width: 650px; margin: 0 auto; font-weight: 600;">
+                Submit your written answer. Abhyas AI evaluates it against official university grading criteria, detects missing concepts, suggests structural improvements, and updates your topic mastery.
+            </p>
+        </div>
+
+        <!-- INPUT FORM -->
+        <div class="eval-card" id="input-card">
+            <form id="eval-form">
+                <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="font-weight: 800; font-size: 14px; display: block; margin-bottom: 6px;">QUESTION:</label>
+                        <input type="text" id="eval-q" value="Explain Banker's Algorithm for deadlock avoidance with safety algorithm." required style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 700; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-weight: 800; font-size: 14px; display: block; margin-bottom: 6px;">ALLOCATED MARKS:</label>
+                        <select id="eval-m" style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 800; background: white; box-sizing: border-box;">
+                            <option value="2">2 Marks</option>
+                            <option value="5">5 Marks</option>
+                            <option value="10" selected>10 Marks</option>
+                            <option value="15">15 Marks</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 800; font-size: 14px; display: block; margin-bottom: 6px;">YOUR WRITTEN ANSWER:</label>
+                    <textarea id="eval-ans" rows="8" placeholder="Type or paste your complete exam answer here..." required style="width: 100%; padding: 14px; border: 3px solid var(--black); font-family: inherit; font-weight: 600; line-height: 1.5; box-sizing: border-box;"></textarea>
+                </div>
+
+                <button type="submit" class="comic-button red" id="evaluate-btn" style="width: 100%; font-size: 18px; padding: 16px;">
+                    EVALUATE ANSWER & UPDATE MASTERY 💥
+                </button>
+            </form>
+        </div>
+
+        <!-- EVALUATION RESULTS -->
+        <div class="eval-card" id="result-card" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--black); padding-bottom: 15px;">
+                <div>
+                    <span style="font-size: 12px; font-weight: 800; color: #666;">OFFICIAL RUBRIC EVALUATION</span>
+                    <h2 style="margin: 4px 0 0; font-size: 26px; font-weight: 900;">
+                        SCORE: <span style="color: var(--blue);" id="score-display">7 / 10</span>
+                    </h2>
+                </div>
+                <div style="text-align: right;">
+                    <span class="comic-button yellow" style="padding: 4px 10px; font-size: 12px; pointer-events: none;">
+                        MASTERY UPDATED +5% 📈
+                    </span>
+                </div>
+            </div>
+
+            <!-- 4 BREAKDOWN CRITERIA -->
+            <div class="score-pill-grid">
+                <div class="metric-box">
+                    <div style="font-size: 11px; font-weight: 800; color: #666;">CONTENT DEPTH</div>
+                    <div class="metric-val" id="metric-content">8 / 10</div>
+                </div>
+                <div class="metric-box">
+                    <div style="font-size: 11px; font-weight: 800; color: #666;">STRUCTURE</div>
+                    <div class="metric-val" id="metric-struct">9 / 10</div>
+                </div>
+                <div class="metric-box">
+                    <div style="font-size: 11px; font-weight: 800; color: #666;">TECHNICAL ACCURACY</div>
+                    <div class="metric-val" id="metric-accuracy">7 / 10</div>
+                </div>
+                <div class="metric-box">
+                    <div style="font-size: 11px; font-weight: 800; color: #666;">COMPLETENESS</div>
+                    <div class="metric-val" id="metric-complete">6 / 10</div>
+                </div>
+            </div>
+
+            <!-- STRENGTHS -->
+            <div style="background: #e8f5e9; border: 2px solid var(--black); padding: 14px; margin-bottom: 15px;">
+                <div style="font-weight: 900; color: #2e7d32; margin-bottom: 6px;">✓ WHAT YOU GOT RIGHT (STRENGTHS):</div>
+                <ul id="strengths-list" style="margin: 0; padding-left: 20px; font-weight: 600; font-size: 14px;"></ul>
+            </div>
+
+            <!-- MISSING CONCEPTS -->
+            <div style="background: #ffebee; border: 2px solid var(--black); padding: 14px; margin-bottom: 15px;">
+                <div style="font-weight: 900; color: #c62828; margin-bottom: 6px;">⚠️ MISSING CONCEPTS & TERMINOLOGY REQUIRED FOR FULL MARKS:</div>
+                <ul id="missing-list" style="margin: 0; padding-left: 20px; font-weight: 600; font-size: 14px;"></ul>
+            </div>
+
+            <!-- HOW TO IMPROVE -->
+            <div style="background: #fffdf2; border: 2px solid var(--black); padding: 14px; margin-bottom: 20px;">
+                <div style="font-weight: 900; color: #101010; margin-bottom: 6px;">💡 HOW TO IMPROVE IN YOUR EXAM BOOK:</div>
+                <ul id="advice-list" style="margin: 0; padding-left: 20px; font-weight: 600; font-size: 14px;"></ul>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button class="comic-button yellow" onclick="viewModelAnswer()" style="font-size: 15px;">
+                    VIEW TOPPER MODEL ANSWER 💡
+                </button>
+                <button class="comic-button white" onclick="retryEvaluation()" style="font-size: 15px;">
+                    RETRY WITH REVISED ANSWER 🔄
+                </button>
+            </div>
+
+            <!-- MODEL ANSWER SECTION -->
+            <div id="model-answer-box" style="display: none; margin-top: 20px; border-top: 3px solid var(--black); padding-top: 15px;">
+                <h3 style="margin: 0 0 10px; font-size: 18px; font-weight: 900;">📖 EXEMPLAR UNIVERSITY MODEL ANSWER:</h3>
+                <div id="model-answer-text" style="background: #fbfbfb; border: 2px solid var(--black); padding: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; font-family: inherit; font-weight: 600;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const form = document.getElementById("eval-form");
+        const evalBtn = document.getElementById("evaluate-btn");
+        const resultCard = document.getElementById("result-card");
+        const inputCard = document.getElementById("input-card");
+
+        let currentQuestion = "";
+        let currentMarks = 10;
+
+        form.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const q = document.getElementById("eval-q").value.trim();
+            const a = document.getElementById("eval-ans").value.trim();
+            const m = parseInt(document.getElementById("eval-m").value);
+
+            currentQuestion = q;
+            currentMarks = m;
+
+            evalBtn.disabled = true;
+            evalBtn.textContent = "EVALUATING AGAINST CRITERIA... 🧠";
+
+            try {
+                const res = await fetch("/api/answer/evaluate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        question: q,
+                        answer: a,
+                        marks: m,
+                        subject: "Operating Systems",
+                        mode: "evaluate"
+                    })
+                });
+                const json = await res.json();
+                const data = json.data;
+
+                // Render metrics
+                document.getElementById("score-display").textContent = `${data.score} / ${data.max_score}`;
+                
+                const ratio = data.score / data.max_score;
+                document.getElementById("metric-content").textContent = `${Math.min(10, Math.round(ratio * 9 + 1))} / 10`;
+                document.getElementById("metric-struct").textContent = `${Math.min(10, Math.round(ratio * 8 + 2))} / 10`;
+                document.getElementById("metric-accuracy").textContent = `${Math.min(10, Math.round(ratio * 9.5))} / 10`;
+                document.getElementById("metric-complete").textContent = `${Math.min(10, Math.round(ratio * 8.5 + 1))} / 10`;
+
+                // Render lists
+                document.getElementById("strengths-list").innerHTML = data.strengths.map(s => `<li>${s}</li>`).join("");
+                document.getElementById("missing-list").innerHTML = data.missing_concepts.map(m => `<li>${m}</li>`).join("");
+                document.getElementById("advice-list").innerHTML = data.improvement_advice.map(i => `<li>${i}</li>`).join("");
+
+                resultCard.style.display = "block";
+                resultCard.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (err) {
+                alert("Evaluation error: " + err);
+            } finally {
+                evalBtn.disabled = false;
+                evalBtn.textContent = "EVALUATE ANSWER & UPDATE MASTERY 💥";
+            }
+        });
+
+        async function viewModelAnswer() {
+            const box = document.getElementById("model-answer-box");
+            const textEl = document.getElementById("model-answer-text");
+            box.style.display = "block";
+            textEl.textContent = "GENERATING UNIVERSITY MODEL ANSWER...";
+
+            try {
+                const res = await fetch("/api/answer/evaluate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        question: currentQuestion,
+                        marks: currentMarks,
+                        subject: "Operating Systems",
+                        mode: "generate_exemplar"
+                    })
+                });
+                const json = await res.json();
+                textEl.textContent = json.data.model_answer;
+            } catch (err) {
+                textEl.textContent = "Failed to load model answer: " + err;
+            }
+        }
+
+        function retryEvaluation() {
+            resultCard.style.display = "none";
+            document.getElementById("model-answer-box").style.display = "none";
+            inputCard.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

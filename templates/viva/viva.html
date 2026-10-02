@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Viva Voce - AbhyasAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/viva.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="viva-container">
+    <h1>Viva Voce Examination</h1>
+    <p>Take an interactive oral examination with our voice-enabled AI tutor.</p>
+</div>
+{% endblock %}

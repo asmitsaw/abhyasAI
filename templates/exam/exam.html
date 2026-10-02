@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Exam Prep - AbhyasAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/exam.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="exam-container">
+    <h1>Exam Preparation</h1>
+    <p>Generate papers, practice mock tests, and review performance analytics.</p>
+</div>
+{% endblock %}

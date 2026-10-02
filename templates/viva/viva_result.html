@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Viva Result - AbhyasAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/viva.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="viva-result-container">
+    <h1>Viva Results & Feedback</h1>
+    <p>Detailed performance analysis, confidence score, and custom feedback on your oral responses.</p>
+</div>
+{% endblock %}

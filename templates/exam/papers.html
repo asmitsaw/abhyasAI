@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Generated Papers - AbhyasAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/exam.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="papers-container">
+    <h1>Mock & Practice Papers</h1>
+    <p>Browse previously generated papers or start a new test.</p>
+</div>
+{% endblock %}

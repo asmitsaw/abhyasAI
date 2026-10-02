@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abhyas AI | Exam Prep</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+    <header class="navbar">
+        <a href="/" class="logo" style="text-decoration: none; color: white;">
+            ABHYAS<span>AI</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="/">HOME</a>
+            <a href="/learn">LEARN</a>
+            <a href="/exam">EXAM PREP</a>
+        </nav>
+
+        <button class="menu-button">☰</button>
+    </header>
+
+
+    <main>
+        <!-- =========================
+             HERO SECTION
+        ========================== -->
+        <section class="learning-hero">
+            <div class="learning-title">
+                <div class="section-label">
+                    📚 EXAM PREP LAB
+                </div>
+
+                <h1>
+                    CRUSH YOUR<br>
+                    <span>EXAMS</span> WITH<br>
+                    <strong>AI PAPERS!</strong>
+                </h1>
+
+                <p>
+                    Upload 3 previous year papers and your syllabus. Abhyas AI analyzes historical weightage, question patterns, and difficulty to generate 2 custom practice papers!
+                </p>
+            </div>
+
+            <div class="learning-character">
+                📝
+            </div>
+        </section>
+
+
+        <!-- =========================
+             EXAM PREP INPUT FORM
+        ========================== -->
+        <section class="video-input-panel" style="max-width: 1000px; margin: 40px auto;">
+            <div class="panel-header">
+                <span>⚡ EXAM BLUEPRINT GENERATOR</span>
+                <span>STEP 01 - 03</span>
+            </div>
+
+            <h2>CONFIGURE YOUR PRACTICE PAPERS</h2>
+            <p>Upload past papers and syllabus to generate high-yield practice exams.</p>
+
+            <form id="exam-prep-form" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 25px; margin-top: 20px;">
+                
+                <!-- STEP 1: PYQ UPLOADS -->
+                <div class="form-step-box">
+                    <h3>📄 STEP 1: UPLOAD PREVIOUS YEAR PAPERS (PYQs)</h3>
+                    <p class="input-note">Upload up to 3 past exam papers (PDF or TXT format).</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-top: 12px;">
+                        <div>
+                            <label style="font-weight: 700; display: block; margin-bottom: 5px;">PYQ Paper 1:</label>
+                            <input type="file" name="pyq1" accept=".pdf,.txt,.md" required style="width: 100%; padding: 10px; border: 3px solid var(--black); background: white;">
+                        </div>
+                        <div>
+                            <label style="font-weight: 700; display: block; margin-bottom: 5px;">PYQ Paper 2 (Optional):</label>
+                            <input type="file" name="pyq2" accept=".pdf,.txt,.md" style="width: 100%; padding: 10px; border: 3px solid var(--black); background: white;">
+                        </div>
+                        <div>
+                            <label style="font-weight: 700; display: block; margin-bottom: 5px;">PYQ Paper 3 (Optional):</label>
+                            <input type="file" name="pyq3" accept=".pdf,.txt,.md" style="width: 100%; padding: 10px; border: 3px solid var(--black); background: white;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: SYLLABUS -->
+                <div class="form-step-box">
+                    <h3>📖 STEP 2: PROVIDE SUBJECT SYLLABUS</h3>
+                    <p class="input-note">Upload a syllabus file OR paste module subtopics below.</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+                        <input type="file" name="syllabus_file" accept=".pdf,.txt,.md" style="width: 100%; padding: 10px; border: 3px solid var(--black); background: white;">
+                        
+                        <div style="text-align: center; font-weight: 700;">- OR PASTE SYLLABUS TEXT -</div>
+                        
+                        <textarea name="syllabus_text" rows="5" placeholder="e.g. Module 1: Process Management (Scheduling, Deadlocks)...&#10;Module 2: Memory Management (Paging, Virtual Memory)..." style="width: 100%; padding: 14px; border: 3px solid var(--black); font-family: inherit; font-weight: 600; outline: none;"></textarea>
+                    </div>
+                </div>
+
+                <!-- STEP 3: PAPER CONFIGURATION -->
+                <div class="form-step-box">
+                    <h3>⚙️ STEP 3: PAPER REQUIREMENTS</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 12px;">
+                        <div>
+                            <label style="font-weight: 700; display: block; margin-bottom: 5px;">Paper Type:</label>
+                            <select name="paper_type" style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 700; background: white;">
+                                <option value="Unit Test">Unit Test</option>
+                                <option value="Mid Semester Exam">Mid Semester Exam</option>
+                                <option value="End Semester Exam">End Semester Exam</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label style="font-weight: 700; display: block; margin-bottom: 5px;">Paper Pattern / Format:</label>
+                            <select name="format_pattern" style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 700; background: white;">
+                                <option value="Module Choice (6-7 Marks + 2 Marks Short Questions)">Module Choice (6-7 Marks per module + 2 Marks Short Questions)</option>
+                                <option value="Match PYQ Pattern Exactly">Match PYQ Pattern Exactly (End Sem Standard)</option>
+                                <option value="Standard Balanced Paper">Standard Balanced Paper</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label style="font-weight: 700; display: block; margin-bottom: 5px;">Total Marks:</label>
+                            <select name="total_marks" style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 700; background: white;">
+                                <option value="20">20 Marks</option>
+                                <option value="30">30 Marks</option>
+                                <option value="40">40 Marks</option>
+                                <option value="60">60 Marks</option>
+                                <option value="80">80 Marks</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px;">
+                        <label style="font-weight: 700; display: block; margin-bottom: 5px;">Additional Instructions (Optional):</label>
+                        <input type="text" name="custom_instructions" placeholder="e.g. Include numerical problems on Round Robin scheduling" style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 600;">
+                    </div>
+                </div>
+
+                <!-- GENERATE BUTTON -->
+                <button type="submit" class="comic-button red" id="generate-paper-btn" style="font-size: 20px; padding: 18px;">
+                    GENERATE PRACTICE PAPERS 💥
+                </button>
+            </form>
+        </section>
+
+
+        <!-- =========================
+             RESULTS DISPLAY SECTION
+        ========================== -->
+        <section class="quiz-section" id="papers-result" style="display: none; max-width: 1100px;">
+            <div class="quiz-header">
+                <div class="section-label">
+                    🏆 GENERATED PRACTICE PAPERS
+                </div>
+                <button class="comic-button black" onclick="window.print()">
+                    🖨️ PRINT PAPERS
+                </button>
+            </div>
+
+            <!-- PAPER TABS -->
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <button class="comic-button yellow" id="tab-paper-1" onclick="switchPaperTab(1)">
+                    PRACTICE PAPER 1 (SET A)
+                </button>
+                <button class="comic-button white" id="tab-paper-2" onclick="switchPaperTab(2)">
+                    PRACTICE PAPER 2 (SET B)
+                </button>
+            </div>
+
+            <!-- PAPER 1 VIEW -->
+            <div class="quiz-card" id="paper-1-card">
+                <div id="paper-1-content"></div>
+            </div>
+
+            <!-- PAPER 2 VIEW -->
+            <div class="quiz-card" id="paper-2-card" style="display: none;">
+                <div id="paper-2-content"></div>
+            </div>
+        </section>
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer class="footer">
+        <strong>ABHYAS AI</strong>
+        <span>LEARN • PRACTICE • CONQUER</span>
+    </footer>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+    <script>
+        const form = document.getElementById("exam-prep-form");
+        const generateBtn = document.getElementById("generate-paper-btn");
+        const resultSection = document.getElementById("papers-result");
+        const paper1Content = document.getElementById("paper-1-content");
+        const paper2Content = document.getElementById("paper-2-content");
+        
+        let generatedData = null;
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = "ANALYZING & GENERATING PAPERS... 🧠";
+
+            try {
+                const response = await fetch("/exam/generate", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert("Error: " + (data.error || "Failed to generate practice papers."));
+                    return;
+                }
+
+                generatedData = data;
+                renderPapers(data);
+
+                resultSection.style.display = "block";
+                resultSection.scrollIntoView({ behavior: "smooth" });
+
+            } catch (error) {
+                console.error(error);
+                alert("Something went wrong while generating practice papers.");
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = "GENERATE PRACTICE PAPERS 💥";
+            }
+        });
+
+        function renderPapers(data) {
+            const set = data.paper_set;
+            paper1Content.innerHTML = formatPaperHtml(set.paper_1, "SET A");
+            paper2Content.innerHTML = formatPaperHtml(set.paper_2, "SET B");
+        }
+
+        function formatPaperHtml(paper, setLabel) {
+            let html = `
+                <div style="border-bottom: 4px solid var(--black); padding-bottom: 15px; margin-bottom: 20px; text-align: center;">
+                    <div style="font-family: Impact, sans-serif; font-size: 28px;">${escapeHtml(paper.title)} (${setLabel})</div>
+                    <div style="font-weight: 700; margin-top: 5px;">Time Duration: ${paper.duration_minutes || 60} Mins | Total Marks: ${paper.total_marks}</div>
+                </div>
+            `;
+
+            if (paper.general_instructions && paper.general_instructions.length) {
+                html += `<div style="background: var(--cream); border: 3px solid var(--black); padding: 12px 18px; margin-bottom: 25px;">
+                    <strong>General Instructions:</strong>
+                    <ul style="margin: 5px 0 0 20px; padding: 0;">`;
+                paper.general_instructions.forEach(inst => {
+                    html += `<li>${escapeHtml(inst)}</li>`;
+                });
+                html += `</ul></div>`;
+            }
+
+            paper.sections.forEach(sec => {
+                html += `
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="background: var(--black); color: white; padding: 8px 14px; font-family: Impact, sans-serif; letter-spacing: 1px; margin-bottom: 12px;">
+                            ${escapeHtml(sec.section_title)} (${sec.section_marks} Marks)
+                        </h3>
+                        <p style="font-style: italic; font-weight: 600; margin-bottom: 15px;">${escapeHtml(sec.instructions || '')}</p>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                `;
+
+                sec.questions.forEach((q, idx) => {
+                    if (q.is_optional_choice || (q.or_choice_group && idx > 0 && sec.questions[idx-1].or_choice_group === q.or_choice_group)) {
+                        html += `
+                            <div style="text-align: center; font-weight: 900; font-family: Impact, sans-serif; font-size: 18px; color: var(--red, #e63946); margin: -5px 0; background: #fff3f3; border: 2px dashed var(--black); padding: 4px;">
+                                ⚡ --- OR (ATTEMPT ANY ONE) --- ⚡
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                        <div style="background: white; border: 3px solid var(--black); box-shadow: 4px 4px 0 var(--black); padding: 15px 18px;">
+                            <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--blue); margin-bottom: 6px;">
+                                <span>Question ${escapeHtml(q.question_number)} ${q.module ? `<span style="font-size: 12px; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; margin-left: 8px;">${escapeHtml(q.module)}</span>` : ''}</span>
+                                <span>[${q.marks} Marks]</span>
+                            </div>
+                            <div style="font-size: 16px; font-weight: 600; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(q.question_text)}</div>
+                            ${q.solution_hint ? `
+                                <details style="margin-top: 10px; background: #f0f8ff; border: 2px dashed var(--black); padding: 8px 12px; border-radius: 4px;">
+                                    <summary style="cursor: pointer; font-weight: 700; color: var(--black);">💡 View Solution Hint / Key Points</summary>
+                                    <p style="margin-top: 6px; font-size: 14px;">${escapeHtml(q.solution_hint)}</p>
+                                </details>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+            });
+
+            return html;
+        }
+
+        function switchPaperTab(tabNum) {
+            const btn1 = document.getElementById("tab-paper-1");
+            const btn2 = document.getElementById("tab-paper-2");
+            const card1 = document.getElementById("paper-1-card");
+            const card2 = document.getElementById("paper-2-card");
+
+            if (tabNum === 1) {
+                btn1.className = "comic-button yellow";
+                btn2.className = "comic-button white";
+                card1.style.display = "block";
+                card2.style.display = "none";
+            } else {
+                btn1.className = "comic-button white";
+                btn2.className = "comic-button yellow";
+                card1.style.display = "none";
+                card2.style.display = "block";
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement("div");
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+
+</html>

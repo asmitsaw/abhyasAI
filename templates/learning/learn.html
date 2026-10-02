@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Abhyas AI | Learn</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <header class="navbar">
+
+        <a href="/" class="logo" style="text-decoration: none; color: white;">
+            ABHYAS<span>AI</span>
+        </a>
+
+
+        <nav class="nav-links">
+
+            <a href="/">
+                HOME
+            </a>
+
+            <a href="/learn">
+                LEARN
+            </a>
+
+            <a href="#quiz">
+                QUIZ
+            </a>
+
+            <a href="#tutor">
+                AI TUTOR
+            </a>
+
+        </nav>
+
+
+        <button class="menu-button">
+            ☰
+        </button>
+
+    </header>
+
+
+
+    <!-- =========================
+         LEARNING HERO
+    ========================== -->
+
+    <main>
+
+        <section class="learning-hero">
+
+
+            <div class="learning-title">
+
+                <div class="section-label">
+
+                    🎥 ABHYAS LEARN
+
+                </div>
+
+
+                <h1>
+
+                    TURN ANY<br>
+
+                    <span>VIDEO</span>
+
+                    INTO A<br>
+
+                    <strong>QUIZ!</strong>
+
+                </h1>
+
+
+                <p>
+
+                    Paste the YouTube lecture you're studying
+                    and let Abhyas AI turn it into an
+                    interactive learning experience.
+
+                </p>
+
+            </div>
+
+
+
+            <div class="learning-character">
+
+                🎥
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================
+             VIDEO INPUT
+        ========================== -->
+
+        <section class="video-input-panel">
+
+            <div class="panel-header">
+
+                <span>
+                    ⚡ MISSION START
+                </span>
+
+                <span>
+                    STEP 01
+                </span>
+
+            </div>
+
+
+            <h2>
+
+                WHAT ARE YOU LEARNING TODAY?
+
+            </h2>
+
+
+            <p>
+
+                Paste the link to your YouTube lecture below.
+
+            </p>
+
+
+            <div class="youtube-input-wrapper">
+
+                <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=...">
+
+
+                <button class="comic-button red" id="generate-button">
+
+                    LET'S GO! 💥
+
+                </button>
+
+            </div>
+
+
+            <div class="input-note">
+
+                🎯 We'll analyze the video transcript
+                and generate your personalized quiz.
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             FUTURE QUIZ AREA
+        ========================== -->
+
+        <section class="quiz-section" id="quiz">
+
+            <div class="quiz-header">
+
+                <div class="section-label">
+
+                    🧠 STEP 02 — ABHYAS QUIZ
+
+                </div>
+
+                <div class="question-counter" id="question-counter">
+
+                    QUESTION 0 / 20
+
+                </div>
+
+            </div>
+
+
+            <div class="quiz-card" id="quiz-card">
+
+                <div class="quiz-number">
+
+                    Q
+
+                </div>
+
+
+                <h2 id="question-text">
+
+                    Your quiz will appear here.
+
+                </h2>
+
+
+                <div class="options" id="options-container">
+
+                </div>
+
+
+                <div class="quiz-feedback" id="quiz-feedback">
+
+                </div>
+
+
+                <div class="quiz-controls">
+
+                    <button class="comic-button black" id="next-button" disabled>
+
+                        NEXT →
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="quiz-result" id="quiz-result" style="display: none;">
+
+                <div class="result-burst">
+
+                    💥
+
+                </div>
+
+
+                <div>
+
+                    <div class="section-label">
+
+                        MISSION COMPLETE
+
+                    </div>
+
+
+                    <h2>
+
+                        QUIZ <span>COMPLETE!</span>
+
+                    </h2>
+
+
+                    <div class="score-display" id="score-display">
+
+                        0 / 20
+
+                    </div>
+
+
+                    <p id="score-message">
+
+                    </p>
+
+
+                    <button class="comic-button red" id="retry-button">
+
+                        TRY AGAIN 🔄
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             AI TUTOR SECTION
+        ========================== -->
+
+        <section class="tutor-section" id="tutor">
+
+            <div class="tutor-header">
+
+                <div class="section-label">
+
+                    🤖 STEP 03 — ABHYAS AI TUTOR
+
+                </div>
+
+                <h2>
+
+                    GOT A <span>DOUBT?</span> ASK YOUR SIDEKICK!
+
+                </h2>
+
+                <p>
+
+                    Ask any question about the lecture you're studying, and Abhyas AI will break it down for you!
+
+                </p>
+
+            </div>
+
+
+            <div class="tutor-card">
+
+                <div class="tutor-chat-window" id="tutor-chat-window">
+
+                    <div class="chat-bubble ai-bubble">
+
+                        <div class="bubble-avatar">🤖</div>
+
+                        <div class="bubble-content">
+
+                            <strong>Abhyas AI:</strong><br>
+
+                            Hey study hero! What didn't you understand from the lecture? Ask me anything and I'll break it down for you! ⚡
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="tutor-input-wrapper">
+
+                    <input type="text" id="tutor-question" placeholder="e.g. Explain the main topic in simple terms...">
+
+                    <button class="comic-button yellow" id="tutor-send-button">
+
+                        ASK DOUBT 💥
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        <strong>
+            ABHYAS AI
+        </strong>
+
+        <span>
+            LEARN • PRACTICE • CONQUER
+        </span>
+
+    </footer>
+    <script>
+
+        let quizData = [];
+
+        let currentQuestion = 0;
+
+        let score = 0;
+
+        let selectedAnswer = false;
+
+
+        const generateButton =
+            document.getElementById("generate-button");
+
+        const youtubeInput =
+            document.getElementById("youtube-url");
+
+
+        const questionCounter =
+            document.getElementById("question-counter");
+
+        const questionText =
+            document.getElementById("question-text");
+
+        const optionsContainer =
+            document.getElementById("options-container");
+
+        const quizFeedback =
+            document.getElementById("quiz-feedback");
+
+        const nextButton =
+            document.getElementById("next-button");
+
+        const quizCard =
+            document.getElementById("quiz-card");
+
+        const quizResult =
+            document.getElementById("quiz-result");
+
+        const scoreDisplay =
+            document.getElementById("score-display");
+
+        const scoreMessage =
+            document.getElementById("score-message");
+
+        const retryButton =
+            document.getElementById("retry-button");
+
+
+        /*
+        =========================================
+        GENERATE QUIZ
+        =========================================
+        */
+
+        generateButton.addEventListener(
+            "click",
+            async function () {
+
+                const youtubeUrl =
+                    youtubeInput.value.trim();
+
+
+                if (!youtubeUrl) {
+
+                    alert(
+                        "Please paste a YouTube URL."
+                    );
+
+                    return;
+
+                }
+
+
+                generateButton.disabled = true;
+
+                generateButton.textContent =
+                    "GENERATING QUIZ...";
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/process-youtube",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body: JSON.stringify({
+                                    url: youtubeUrl
+                                })
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!data.success) {
+
+                        alert(data.error);
+
+                        return;
+
+                    }
+
+
+                    /*
+                    Store quiz & video ID
+                    */
+
+                    quizData =
+                        data.quiz.questions;
+
+                    currentVideoId =
+                        data.video_id;
+
+
+                    /*
+                    Reset quiz
+                    */
+
+                    currentQuestion = 0;
+
+                    score = 0;
+
+
+                    /*
+                    Show first question
+                    */
+
+                    displayQuestion();
+
+
+                    /*
+                    Scroll to quiz
+                    */
+
+                    document
+                        .getElementById("quiz")
+                        .scrollIntoView({
+                            behavior: "smooth"
+                        });
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "Something went wrong while " +
+                        "generating the quiz."
+                    );
+
+
+                } finally {
+
+                    generateButton.disabled = false;
+
+                    generateButton.textContent =
+                        "LET'S GO! 💥";
+
+                }
+
+            }
+        );
+
+
+        /*
+        =========================================
+        DISPLAY QUESTION
+        =========================================
+        */
+
+        function displayQuestion() {
+
+            selectedAnswer = false;
+
+            nextButton.disabled = true;
+
+            quizFeedback.textContent = "";
+
+            quizFeedback.className =
+                "quiz-feedback";
+
+
+            const question =
+                quizData[currentQuestion];
+
+
+            questionCounter.textContent =
+                `QUESTION ${currentQuestion + 1} / ${quizData.length}`;
+
+
+            questionText.textContent =
+                question.question;
+
+
+            optionsContainer.innerHTML = "";
+
+
+            question.options.forEach(
+                function (option, index) {
+
+                    const button =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    button.className =
+                        "quiz-option";
+
+
+                    button.textContent =
+                        `${String.fromCharCode(65 + index)}. ${option}`;
+
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            selectAnswer(
+                                button,
+                                option,
+                                question
+                            );
+
+                        }
+                    );
+
+
+                    optionsContainer.appendChild(
+                        button
+                    );
+
+                }
+            );
+
+        }
+
+
+        /*
+        =========================================
+        SELECT ANSWER
+        =========================================
+        */
+
+        function selectAnswer(
+            selectedButton,
+            selectedOption,
+            question
+        ) {
+
+            if (selectedAnswer) {
+
+                return;
+
+            }
+
+
+            selectedAnswer = true;
+
+
+            const allOptions =
+                document.querySelectorAll(
+                    ".quiz-option"
+                );
+
+
+            allOptions.forEach(
+                function (button) {
+
+                    button.disabled = true;
+
+                }
+            );
+
+
+            const isCorrect =
+                selectedOption ===
+                question.correct_answer;
+
+
+            if (isCorrect) {
+
+                score++;
+
+
+                selectedButton.classList.add(
+                    "correct"
+                );
+
+
+                quizFeedback.textContent =
+                    `💥 CORRECT! ${question.explanation}`;
+
+
+                quizFeedback.classList.add(
+                    "correct-feedback"
+                );
+
+            } else {
+
+                selectedButton.classList.add(
+                    "incorrect"
+                );
+
+
+                allOptions.forEach(
+                    function (button) {
+
+                        const optionText =
+                            button.textContent
+                                .substring(3);
+
+
+                        if (
+                            optionText ===
+                            question.correct_answer
+                        ) {
+
+                            button.classList.add(
+                                "correct"
+                            );
+
+                        }
+
+                    }
+                );
+
+
+                quizFeedback.textContent =
+                    `❌ Not quite! ${question.explanation}`;
+
+
+                quizFeedback.classList.add(
+                    "incorrect-feedback"
+                );
+
+            }
+
+
+            nextButton.disabled = false;
+
+        }
+
+
+        /*
+        =========================================
+        NEXT QUESTION
+        =========================================
+        */
+
+        nextButton.addEventListener(
+            "click",
+            function () {
+
+                currentQuestion++;
+
+
+                if (
+                    currentQuestion >=
+                    quizData.length
+                ) {
+
+                    showResult();
+
+                    return;
+
+                }
+
+
+                displayQuestion();
+
+            }
+        );
+
+
+        /*
+        =========================================
+        SHOW RESULT
+        =========================================
+        */
+
+        function showResult() {
+
+            quizCard.style.display =
+                "none";
+
+
+            quizResult.style.display =
+                "flex";
+
+
+            scoreDisplay.textContent =
+                `${score} / ${quizData.length}`;
+
+
+            const percentage =
+                Math.round(
+                    (score / quizData.length) * 100
+                );
+
+
+            if (percentage >= 80) {
+
+                scoreMessage.textContent =
+                    `🔥 Outstanding! ${percentage}% — you're crushing it!`;
+
+            } else if (percentage >= 60) {
+
+                scoreMessage.textContent =
+                    `💪 Nice work! ${percentage}% — keep practicing!`;
+
+            } else {
+
+                scoreMessage.textContent =
+                    `📚 ${percentage}% — revise the topic and try again!`;
+
+            }
+
+        }
+
+
+        /*
+        =========================================
+        RETRY
+        =========================================
+        */
+
+        retryButton.addEventListener(
+            "click",
+            function () {
+
+                currentQuestion = 0;
+
+                score = 0;
+
+                quizResult.style.display =
+                    "none";
+
+                quizCard.style.display =
+                    "block";
+
+                displayQuestion();
+
+            }
+        );
+
+
+        /*
+        =========================================
+        AI TUTOR CHAT
+        =========================================
+        */
+
+        let currentVideoId = null;
+
+        const tutorChatWindow = document.getElementById("tutor-chat-window");
+        const tutorQuestionInput = document.getElementById("tutor-question");
+        const tutorSendButton = document.getElementById("tutor-send-button");
+
+        async function askTutor() {
+            const question = tutorQuestionInput.value.trim();
+
+            if (!question) {
+                alert("Please enter a question for the AI Tutor.");
+                return;
+            }
+
+            // Append user bubble
+            appendChatBubble("user", "YOU", question);
+
+            tutorQuestionInput.value = "";
+            tutorSendButton.disabled = true;
+            tutorSendButton.textContent = "THINKING... 🧠";
+
+            // Append loading bubble
+            const loadingBubble = appendChatBubble("ai loading", "Abhyas AI", "Analyzing transcript and thinking... ⚡");
+
+            try {
+                const response = await fetch("/ask-tutor", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        video_id: currentVideoId
+                    })
+                });
+
+                const data = await response.json();
+
+                // Remove loading bubble
+                if (loadingBubble && loadingBubble.parentNode) {
+                    loadingBubble.parentNode.removeChild(loadingBubble);
+                }
+
+                if (!data.success) {
+                    appendChatBubble("ai", "Abhyas AI", "❌ " + (data.error || "Could not answer your question."));
+                } else {
+                    appendChatBubble("ai", "Abhyas AI", data.answer);
+                }
+
+            } catch (error) {
+                console.error(error);
+                if (loadingBubble && loadingBubble.parentNode) {
+                    loadingBubble.parentNode.removeChild(loadingBubble);
+                }
+                appendChatBubble("ai", "Abhyas AI", "❌ Something went wrong while connecting to the AI Tutor.");
+            } finally {
+                tutorSendButton.disabled = false;
+                tutorSendButton.textContent = "ASK DOUBT 💥";
+            }
+        }
+
+        function appendChatBubble(type, senderName, messageText) {
+            const bubble = document.createElement("div");
+            bubble.className = `chat-bubble ${type}-bubble`;
+
+            const avatar = document.createElement("div");
+            avatar.className = "bubble-avatar";
+            avatar.textContent = type.includes("user") ? "🎓" : "🤖";
+
+            const content = document.createElement("div");
+            content.className = "bubble-content";
+            content.innerHTML = `<strong>${senderName}:</strong><br>${escapeHtml(messageText)}`;
+
+            bubble.appendChild(avatar);
+            bubble.appendChild(content);
+
+            tutorChatWindow.appendChild(bubble);
+            tutorChatWindow.scrollTop = tutorChatWindow.scrollHeight;
+
+            return bubble;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML.replace(/\n/g, "<br>");
+        }
+
+        tutorSendButton.addEventListener("click", askTutor);
+
+        tutorQuestionInput.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                askTutor();
+            }
+        });
+
+    </script>
+</body>
+
+</html>

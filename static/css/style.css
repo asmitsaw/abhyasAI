@@ -1,0 +1,1986 @@
+/* =========================================
+   ABHYAS AI
+   COMIC BOOK DESIGN SYSTEM
+========================================= */
+
+
+/* =========================================
+   ROOT VARIABLES
+========================================= */
+
+:root {
+
+    --black: #101010;
+
+    --yellow: #ffd91a;
+
+    --blue: #1595df;
+
+    --red: #ed2929;
+
+    --white: #fffdf2;
+
+    --cream: #fff4c7;
+
+}
+
+
+/* =========================================
+   RESET
+========================================= */
+
+* {
+
+    box-sizing: border-box;
+
+}
+
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+
+body {
+
+    margin: 0;
+
+    min-width: 320px;
+
+    color: var(--black);
+
+    font-family:
+        "Trebuchet MS",
+        Arial,
+        sans-serif;
+
+    background:
+
+        radial-gradient(circle,
+            rgba(0, 0, 0, 0.18) 2px,
+            transparent 2.5px) 0 0 / 15px 15px,
+
+        var(--yellow);
+
+}
+
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.navbar {
+
+    width: min(1200px,
+            calc(100% - 40px));
+
+    margin: 20px auto;
+
+    padding: 14px 22px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    background: var(--black);
+
+    color: white;
+
+    border: 4px solid var(--black);
+
+    box-shadow:
+        7px 7px 0 var(--black);
+
+}
+
+
+.logo {
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 27px;
+
+    letter-spacing: 2px;
+
+}
+
+
+.logo span {
+
+    color: var(--yellow);
+
+}
+
+
+.nav-links {
+
+    display: flex;
+
+    gap: 30px;
+
+}
+
+
+.nav-links a {
+
+    color: white;
+
+    text-decoration: none;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 13px;
+
+    letter-spacing: 1px;
+
+}
+
+
+.nav-links a:hover {
+
+    color: var(--yellow);
+
+}
+
+
+.menu-button {
+
+    display: none;
+
+    background: transparent;
+
+    border: none;
+
+    color: white;
+
+    font-size: 25px;
+
+}
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero {
+
+    width: min(1200px,
+            calc(100% - 40px));
+
+    min-height: 570px;
+
+    margin: 40px auto 0;
+
+    display: grid;
+
+    grid-template-columns: 43% 57%;
+
+    border: 5px solid var(--black);
+
+    box-shadow:
+        9px 9px 0 var(--black);
+
+    overflow: hidden;
+
+}
+
+
+/* =========================================
+   HERO LEFT
+========================================= */
+
+.hero-left {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+    background:
+
+        radial-gradient(circle,
+            rgba(0, 0, 0, 0.16) 2px,
+            transparent 2.5px) 0 0 / 14px 14px,
+
+        var(--yellow);
+
+    border-right: 5px solid var(--black);
+
+}
+
+
+.hero-left::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 360px;
+
+    height: 360px;
+
+    background: var(--white);
+
+    border: 4px solid var(--black);
+
+    transform: rotate(7deg);
+
+    clip-path: polygon(50% 0%,
+            61% 18%,
+            82% 8%,
+            84% 30%,
+            100% 45%,
+            83% 58%,
+            94% 79%,
+            70% 78%,
+            59% 100%,
+            45% 83%,
+            21% 94%,
+            23% 69%,
+            0% 59%,
+            17% 45%,
+            6% 22%,
+            30% 24%);
+
+}
+
+
+/* =========================================
+   COMIC BURST
+========================================= */
+
+.comic-burst {
+
+    position: absolute;
+
+    top: 25px;
+
+    left: 25px;
+
+    z-index: 5;
+
+    width: 155px;
+
+    height: 155px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    background: var(--red);
+
+    color: white;
+
+    border: 4px solid var(--black);
+
+    transform: rotate(-8deg);
+
+    clip-path: polygon(50% 0%,
+            60% 18%,
+            76% 4%,
+            78% 24%,
+            100% 20%,
+            87% 41%,
+            100% 54%,
+            81% 61%,
+            94% 79%,
+            71% 78%,
+            56% 100%,
+            44% 82%,
+            21% 94%,
+            27% 72%,
+            4% 76%,
+            16% 57%,
+            0% 46%,
+            20% 37%,
+            8% 16%,
+            34% 24%);
+
+}
+
+
+.comic-burst span {
+
+    font-size: 16px;
+
+    font-weight: 900;
+
+}
+
+
+.comic-burst strong {
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 25px;
+
+    line-height: 0.95;
+
+}
+
+
+/* =========================================
+   MASCOT
+========================================= */
+
+.mascot {
+
+    position: relative;
+
+    z-index: 4;
+
+    font-size: 160px;
+
+    filter:
+        drop-shadow(8px 9px 0 var(--black));
+
+    transform: rotate(-5deg);
+
+}
+
+
+/* =========================================
+   SPEED LINES
+========================================= */
+
+.speed-lines {
+
+    position: absolute;
+
+    bottom: 40px;
+
+    left: 35px;
+
+    z-index: 4;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 45px;
+
+    letter-spacing: -12px;
+
+    transform: rotate(-15deg);
+
+}
+
+
+/* =========================================
+   HERO RIGHT
+========================================= */
+
+.hero-right {
+
+    padding: 75px 55px;
+
+    color: white;
+
+    background:
+
+        radial-gradient(circle,
+            rgba(0, 0, 0, 0.13) 2px,
+            transparent 2.5px) 0 0 / 15px 15px,
+
+        var(--blue);
+
+}
+
+
+.small-heading {
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 14px;
+
+    letter-spacing: 2px;
+
+}
+
+
+.hero h1 {
+
+    margin: 20px 0;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size:
+        clamp(50px, 6vw, 78px);
+
+    line-height: 0.86;
+
+    text-shadow:
+        5px 5px 0 var(--black);
+
+}
+
+
+.hero h1 span {
+
+    color: var(--yellow);
+
+    -webkit-text-stroke:
+        2px var(--black);
+
+}
+
+
+.hero-right p {
+
+    max-width: 600px;
+
+    font-size: 16px;
+
+    line-height: 1.55;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.hero-buttons {
+
+    display: flex;
+
+    gap: 15px;
+
+    margin-top: 30px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.comic-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 50px;
+
+    padding: 13px 20px;
+
+    border: 4px solid var(--black);
+
+    box-shadow:
+        5px 5px 0 var(--black);
+
+    text-decoration: none;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    letter-spacing: 1px;
+
+    transition:
+        transform 0.1s ease,
+        box-shadow 0.1s ease;
+
+}
+
+
+.comic-button:hover {
+
+    transform:
+        translate(3px, 3px);
+
+    box-shadow:
+        2px 2px 0 var(--black);
+
+}
+
+
+.comic-button.red {
+
+    background: var(--red);
+
+    color: white;
+
+}
+
+
+.comic-button.white {
+
+    background: var(--white);
+
+    color: var(--black);
+
+}
+
+
+.comic-button.black {
+
+    background: var(--black);
+
+    color: white;
+
+}
+
+
+/* =========================================
+   FEATURE CARDS
+========================================= */
+
+.features {
+
+    width: min(1200px,
+            calc(100% - 40px));
+
+    margin: 35px auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 18px;
+
+}
+
+
+.feature-card {
+
+    min-height: 140px;
+
+    padding: 22px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    border: 4px solid var(--black);
+
+    box-shadow:
+        6px 7px 0 var(--black);
+
+}
+
+
+.feature-card:nth-child(2) {
+
+    transform:
+        rotate(1deg);
+
+}
+
+
+.feature-card:nth-child(3) {
+
+    transform:
+        rotate(-1deg);
+
+}
+
+
+.blue-card {
+
+    background: var(--blue);
+
+    color: white;
+
+}
+
+
+.red-card {
+
+    background: var(--red);
+
+    color: white;
+
+}
+
+
+.yellow-card {
+
+    background: var(--yellow);
+
+}
+
+
+.feature-icon {
+
+    font-size: 45px;
+
+}
+
+
+.feature-card h2 {
+
+    margin: 0 0 5px;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    letter-spacing: 1px;
+
+}
+
+
+.feature-card p {
+
+    margin: 0;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    line-height: 1.4;
+
+}
+
+
+/* =========================================
+   PRACTICE SECTION
+========================================= */
+
+.practice-preview {
+
+    width: min(1200px,
+            calc(100% - 40px));
+
+    margin: 80px auto;
+
+    padding: 60px;
+
+    background: var(--white);
+
+    border: 5px solid var(--black);
+
+    box-shadow:
+        9px 9px 0 var(--black);
+
+}
+
+
+.section-label {
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    letter-spacing: 2px;
+
+    font-size: 14px;
+
+}
+
+
+.practice-preview h2,
+.viva-preview h2 {
+
+    margin: 15px 0;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size:
+        clamp(40px, 6vw, 70px);
+
+    line-height: 0.9;
+
+}
+
+
+.practice-preview h2 span,
+.viva-preview h2 span {
+
+    color: var(--red);
+
+}
+
+
+.practice-preview p {
+
+    max-width: 650px;
+
+    font-weight: 700;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================
+   VIVA
+========================================= */
+
+.viva-preview {
+
+    width: min(1200px,
+            calc(100% - 40px));
+
+    margin: 80px auto;
+
+    padding: 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 45px;
+
+    color: white;
+
+    background: var(--red);
+
+    border: 5px solid var(--black);
+
+    box-shadow:
+        9px 9px 0 var(--black);
+
+}
+
+
+.viva-character {
+
+    font-size: 130px;
+
+    min-width: 160px;
+
+    text-align: center;
+
+    filter:
+        drop-shadow(7px 7px 0 var(--black));
+
+}
+
+
+.viva-preview h2 span {
+
+    color: var(--yellow);
+
+    -webkit-text-stroke:
+        2px var(--black);
+
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.footer {
+
+    width: min(1200px,
+            calc(100% - 40px));
+
+    margin: 70px auto 20px;
+
+    padding: 20px 5px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 15px;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 850px) {
+
+
+    .nav-links {
+
+        display: none;
+
+    }
+
+
+    .menu-button {
+
+        display: block;
+
+    }
+
+
+    .hero {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .hero-left {
+
+        min-height: 350px;
+
+        border-right: none;
+
+        border-bottom: 5px solid var(--black);
+
+    }
+
+
+    .hero-right {
+
+        padding: 55px 30px;
+
+    }
+
+
+    .features {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .viva-preview {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+    }
+
+}
+
+
+@media (max-width: 550px) {
+
+
+    .navbar,
+    .hero,
+    .features,
+    .practice-preview,
+    .viva-preview,
+    .footer {
+
+        width:
+            calc(100% - 20px);
+
+    }
+
+
+    .hero-left {
+
+        min-height: 290px;
+
+    }
+
+
+    .mascot {
+
+        font-size: 110px;
+
+    }
+
+
+    .comic-burst {
+
+        width: 125px;
+
+        height: 125px;
+
+        left: 12px;
+
+    }
+
+
+    .comic-burst strong {
+
+        font-size: 20px;
+
+    }
+
+
+    .hero h1 {
+
+        font-size: 50px;
+
+    }
+
+
+    .hero-buttons {
+
+        flex-direction: column;
+
+    }
+
+
+    .comic-button {
+
+        width: 100%;
+
+    }
+
+
+    .practice-preview,
+    .viva-preview {
+
+        padding: 30px 22px;
+
+    }
+
+
+    .viva-character {
+
+        font-size: 90px;
+
+    }
+
+}
+
+/* =========================================
+   LEARNING PAGE
+========================================= */
+
+.learning-hero {
+
+    width: min(1200px,
+            calc(100% - 40px));
+
+    margin: 45px auto 30px;
+
+    padding: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    background: var(--blue);
+
+    color: white;
+
+    border: 5px solid var(--black);
+
+    box-shadow:
+        9px 9px 0 var(--black);
+
+    overflow: hidden;
+
+}
+
+
+.learning-title {
+
+    max-width: 700px;
+
+}
+
+
+.learning-title h1 {
+
+    margin: 15px 0;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size:
+        clamp(50px, 7vw, 85px);
+
+    line-height: 0.85;
+
+    text-shadow:
+        5px 5px 0 var(--black);
+
+}
+
+
+.learning-title h1 span {
+
+    color: var(--yellow);
+
+    -webkit-text-stroke:
+        2px var(--black);
+
+}
+
+
+.learning-title h1 strong {
+
+    color: var(--red);
+
+    -webkit-text-stroke:
+        2px var(--black);
+
+}
+
+
+.learning-title p {
+
+    max-width: 600px;
+
+    font-weight: 700;
+
+    line-height: 1.5;
+
+}
+
+
+.learning-character {
+
+    font-size: 150px;
+
+    filter:
+        drop-shadow(8px 8px 0 var(--black));
+
+    transform:
+        rotate(8deg);
+
+}
+
+
+/* =========================================
+   VIDEO INPUT PANEL
+========================================= */
+
+.video-input-panel {
+
+    width: min(1000px,
+            calc(100% - 40px));
+
+    margin: 55px auto;
+
+    padding: 40px;
+
+    background: var(--white);
+
+    border: 5px solid var(--black);
+
+    box-shadow:
+        8px 8px 0 var(--black);
+
+}
+
+
+.panel-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding-bottom: 15px;
+
+    border-bottom: 3px solid var(--black);
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    letter-spacing: 1px;
+
+}
+
+
+.video-input-panel h2 {
+
+    margin: 30px 0 10px;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size:
+        clamp(32px, 5vw, 55px);
+
+    line-height: 0.95;
+
+}
+
+
+.video-input-panel p {
+
+    font-weight: 700;
+
+}
+
+
+.youtube-input-wrapper {
+
+    display: flex;
+
+    gap: 12px;
+
+    margin-top: 25px;
+
+}
+
+
+.youtube-input-wrapper input {
+
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 16px;
+
+    border: 4px solid var(--black);
+
+    outline: none;
+
+    background: white;
+
+    font-family:
+        "Trebuchet MS",
+        Arial,
+        sans-serif;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+}
+
+
+.youtube-input-wrapper input:focus {
+
+    box-shadow:
+        4px 4px 0 var(--blue);
+
+}
+
+
+.input-note {
+
+    margin-top: 20px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================
+   QUIZ PLACEHOLDER
+========================================= */
+
+.learning-placeholder {
+
+    width: min(1000px,
+            calc(100% - 40px));
+
+    margin: 70px auto;
+
+    padding: 45px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 30px;
+
+    background: var(--yellow);
+
+    border: 5px solid var(--black);
+
+    box-shadow:
+        8px 8px 0 var(--black);
+
+}
+
+
+.placeholder-icon {
+
+    font-size: 90px;
+
+}
+
+
+.learning-placeholder h2 {
+
+    margin: 10px 0;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size:
+        clamp(35px, 5vw, 60px);
+
+    line-height: 0.9;
+
+}
+
+
+.learning-placeholder h2 span {
+
+    color: var(--red);
+
+    -webkit-text-stroke:
+        1px var(--black);
+
+}
+
+
+.learning-placeholder p {
+
+    font-weight: 700;
+
+    max-width: 600px;
+
+}
+
+
+/* =========================================
+   AI TUTOR PLACEHOLDER
+========================================= */
+
+.tutor-placeholder {
+
+    width: min(1000px,
+            calc(100% - 40px));
+
+    margin: 70px auto;
+
+    padding: 45px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 30px;
+
+    color: white;
+
+    background: var(--red);
+
+    border: 5px solid var(--black);
+
+    box-shadow:
+        8px 8px 0 var(--black);
+
+}
+
+
+.tutor-icon {
+
+    font-size: 90px;
+
+    filter:
+        drop-shadow(5px 5px 0 var(--black));
+
+}
+
+
+.tutor-placeholder h2 {
+
+    margin: 10px 0;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size:
+        clamp(35px, 5vw, 60px);
+
+    line-height: 0.9;
+
+}
+
+
+.tutor-placeholder h2 span {
+
+    color: var(--yellow);
+
+    -webkit-text-stroke:
+        1px var(--black);
+
+}
+
+
+.tutor-placeholder p {
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================
+   LEARNING PAGE MOBILE
+========================================= */
+
+@media (max-width: 750px) {
+
+    .learning-hero {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        padding: 40px 25px;
+
+    }
+
+
+    .learning-character {
+
+        align-self: center;
+
+        font-size: 110px;
+
+    }
+
+
+    .youtube-input-wrapper {
+
+        flex-direction: column;
+
+    }
+
+
+    .youtube-input-wrapper input {
+
+        width: 100%;
+
+    }
+
+
+    .learning-placeholder,
+    .tutor-placeholder {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        padding: 30px 25px;
+
+    }
+
+}
+
+
+/* =========================================
+   ABHYAS QUIZ
+========================================= */
+
+.quiz-section {
+
+    width: min(1000px,
+            calc(100% - 40px));
+
+    margin: 80px auto;
+
+}
+
+
+.quiz-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 18px;
+
+}
+
+
+.question-counter {
+
+    padding: 8px 14px;
+
+    background: var(--black);
+
+    color: white;
+
+    border: 3px solid var(--black);
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    letter-spacing: 1px;
+
+}
+
+
+/* =========================================
+   QUIZ CARD
+========================================= */
+
+.quiz-card {
+
+    position: relative;
+
+    padding: 55px 50px 40px;
+
+    background: var(--white);
+
+    border: 5px solid var(--black);
+
+    box-shadow:
+        9px 9px 0 var(--black);
+
+}
+
+
+.quiz-number {
+
+    position: absolute;
+
+    top: -28px;
+
+    left: 25px;
+
+    width: 58px;
+
+    height: 58px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: var(--red);
+
+    color: white;
+
+    border: 4px solid var(--black);
+
+    border-radius: 50%;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 28px;
+
+    transform: rotate(-8deg);
+
+}
+
+
+.quiz-card h2 {
+
+    margin: 0 0 30px;
+
+    font-family:
+        "Trebuchet MS",
+        Arial,
+        sans-serif;
+
+    font-size: 25px;
+
+    line-height: 1.35;
+
+}
+
+
+/* =========================================
+   OPTIONS
+========================================= */
+
+.options {
+
+    display: grid;
+
+    gap: 14px;
+
+}
+
+
+.quiz-option {
+
+    width: 100%;
+
+    padding: 17px 20px;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    background: white;
+
+    border: 4px solid var(--black);
+
+    box-shadow:
+        4px 4px 0 var(--black);
+
+    font-family:
+        "Trebuchet MS",
+        Arial,
+        sans-serif;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    transition:
+        transform 0.1s ease,
+        box-shadow 0.1s ease;
+
+}
+
+
+.quiz-option:hover {
+
+    transform:
+        translate(2px, 2px);
+
+    box-shadow:
+        2px 2px 0 var(--black);
+
+}
+
+
+.quiz-option.selected {
+
+    background: var(--yellow);
+
+}
+
+
+.quiz-option.correct {
+
+    background: #65d46e;
+
+}
+
+
+.quiz-option.incorrect {
+
+    background: #ff7777;
+
+}
+
+
+.quiz-option:disabled {
+
+    cursor: default;
+
+}
+
+
+/* =========================================
+   FEEDBACK
+========================================= */
+
+.quiz-feedback {
+
+    min-height: 25px;
+
+    margin-top: 22px;
+
+    padding: 0;
+
+    font-weight: 700;
+
+}
+
+
+.quiz-feedback.correct-feedback {
+
+    padding: 14px;
+
+    background: #65d46e;
+
+    border: 3px solid var(--black);
+
+}
+
+
+.quiz-feedback.incorrect-feedback {
+
+    padding: 14px;
+
+    background: #ff7777;
+
+    border: 3px solid var(--black);
+
+}
+
+
+/* =========================================
+   QUIZ CONTROLS
+========================================= */
+
+.quiz-controls {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 25px;
+
+}
+
+
+#next-button:disabled {
+
+    opacity: 0.45;
+
+    cursor: not-allowed;
+
+}
+
+
+/* =========================================
+   QUIZ RESULT
+========================================= */
+
+.quiz-result {
+
+    position: relative;
+
+    padding: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 35px;
+
+    background: var(--blue);
+
+    color: white;
+
+    border: 5px solid var(--black);
+
+    box-shadow:
+        9px 9px 0 var(--black);
+
+}
+
+
+.result-burst {
+
+    width: 130px;
+
+    height: 130px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: var(--yellow);
+
+    border: 5px solid var(--black);
+
+    font-size: 70px;
+
+    transform: rotate(-8deg);
+
+    clip-path: polygon(50% 0%,
+            61% 17%,
+            80% 5%,
+            81% 27%,
+            100% 34%,
+            82% 49%,
+            96% 68%,
+            73% 69%,
+            65% 100%,
+            48% 82%,
+            26% 95%,
+            28% 72%,
+            4% 69%,
+            19% 50%,
+            0% 35%,
+            21% 27%,
+            20% 5%,
+            40% 17%);
+
+}
+
+
+.quiz-result h2 {
+
+    margin: 10px 0;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size:
+        clamp(40px, 6vw, 70px);
+
+    line-height: 0.9;
+
+}
+
+
+.quiz-result h2 span {
+
+    color: var(--yellow);
+
+    -webkit-text-stroke:
+        2px var(--black);
+
+}
+
+
+.score-display {
+
+    margin: 20px 0;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 65px;
+
+    color: var(--yellow);
+
+    -webkit-text-stroke:
+        2px var(--black);
+
+}
+
+
+/* =========================================
+   QUIZ MOBILE
+========================================= */
+
+@media (max-width: 650px) {
+
+    .quiz-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 12px;
+
+    }
+
+
+    .quiz-card {
+
+        padding: 45px 25px 30px;
+
+    }
+
+
+    .quiz-result {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        padding: 35px 25px;
+
+    }
+
+
+    .result-burst {
+
+        width: 100px;
+
+        height: 100px;
+
+        font-size: 50px;
+
+    }
+
+}
+
+
+/* =========================================
+   ABHYAS AI TUTOR SECTION
+========================================= */
+
+.tutor-section {
+    width: min(1000px, calc(100% - 40px));
+    margin: 80px auto;
+}
+
+.tutor-header {
+    margin-bottom: 25px;
+}
+
+.tutor-header h2 {
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: clamp(28px, 4vw, 42px);
+    margin: 10px 0;
+}
+
+.tutor-header h2 span {
+    color: var(--blue);
+    -webkit-text-stroke: 1.5px var(--black);
+}
+
+.tutor-card {
+    background: var(--white);
+    border: 5px solid var(--black);
+    box-shadow: 9px 9px 0 var(--black);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tutor-chat-window {
+    height: 380px;
+    overflow-y: auto;
+    background: var(--cream);
+    border: 4px solid var(--black);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scroll-behavior: smooth;
+}
+
+.chat-bubble {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    max-width: 85%;
+}
+
+.chat-bubble.ai-bubble {
+    align-self: flex-start;
+}
+
+.chat-bubble.user-bubble {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.bubble-avatar {
+    width: 44px;
+    height: 44px;
+    background: var(--yellow);
+    border: 3px solid var(--black);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 3px 3px 0 var(--black);
+}
+
+.user-bubble .bubble-avatar {
+    background: var(--blue);
+}
+
+.bubble-content {
+    background: white;
+    border: 3px solid var(--black);
+    box-shadow: 4px 4px 0 var(--black);
+    padding: 14px 18px;
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 500;
+    color: var(--black);
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.user-bubble .bubble-content {
+    background: var(--blue);
+    color: white;
+}
+
+.chat-bubble.ai-bubble.loading .bubble-content {
+    font-style: italic;
+    color: #666;
+}
+
+.tutor-input-wrapper {
+    display: flex;
+    gap: 15px;
+}
+
+.tutor-input-wrapper input {
+    flex: 1;
+    padding: 16px 20px;
+    font-size: 16px;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    font-weight: 700;
+    border: 4px solid var(--black);
+    box-shadow: 4px 4px 0 var(--black);
+    background: white;
+    outline: none;
+}
+
+.tutor-input-wrapper input:focus {
+    background: var(--cream);
+}
+
+@media (max-width: 650px) {
+    .tutor-card {
+        padding: 20px;
+    }
+    .tutor-input-wrapper {
+        flex-direction: column;
+    }
+    .chat-bubble {
+        max-width: 95%;
+    }
+}

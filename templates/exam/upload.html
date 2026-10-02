@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Upload Syllabus/PYQ - AbhyasAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/exam.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h1>Upload Study Materials</h1>
+    <p>Upload syllabus PDFs or Past Year Questions (PYQs) to train the AI.</p>
+</div>
+{% endblock %}
