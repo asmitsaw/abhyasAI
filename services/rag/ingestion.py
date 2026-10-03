@@ -27,8 +27,6 @@ from services.rag.metadata import ChunkMetadata
 # Maximum characters per chunk to stay under Chroma Cloud's 16 KiB limit.
 # 800 chars ≈ 800 bytes UTF-8 (most educational text is ASCII), well under limit.
 _MAX_CHUNK_CHARS = 800
-# Chroma Cloud rejects upsert requests containing more than 100 records.
-_MAX_UPSERT_BATCH_SIZE = 100
 
 
 class UniversalIngestionService:
@@ -188,15 +186,8 @@ class UniversalIngestionService:
         documents = [txt for txt, _ in chunk_tuples]
         metadatas = [meta.to_chroma_dict() for _, meta in chunk_tuples]
 
-        # Upsert to Chroma Cloud in bounded batches; the API rejects requests
-        # containing more than 100 records.
-        for start in range(0, len(ids), _MAX_UPSERT_BATCH_SIZE):
-            end = start + _MAX_UPSERT_BATCH_SIZE
-            collection.upsert(
-                ids=ids[start:end],
-                documents=documents[start:end],
-                metadatas=metadatas[start:end],
-            )
+        # Upsert to Chroma Cloud; schema triggers sparse embedding generation automatically.
+        collection.upsert(ids=ids, documents=documents, metadatas=metadatas)
 
         print(f"[ChromaCloud] Upserted {len(ids)} chunks → '{collection.name}'")
         return {

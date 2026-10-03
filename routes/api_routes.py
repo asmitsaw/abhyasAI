@@ -408,11 +408,7 @@ def process_materials():
     db = SessionLocal()
     try:
         student_id = get_current_student_id()
-        subject_name = (
-            request.form.get("subject_name", "").strip()
-            or request.form.get("subject", "").strip()
-            or "Operating Systems"
-        )
+        subject_name = request.form.get("subject_name", "").strip() or "Operating Systems"
         session["current_subject"] = subject_name
 
         # 1. Ingest Syllabus
@@ -421,7 +417,6 @@ def process_materials():
         detected_topics = []
         syllabus_text = ""
 
-        syllabus_text_input = request.form.get("syllabus_text", "").strip()
         if syllabus_file and syllabus_file.filename:
             syllabus_res = ingestion_service.ingest_document(
                 file_source=syllabus_file.stream,
@@ -441,29 +436,6 @@ def process_materials():
                             detected_topics.append(t)
             except Exception as syll_err:
                 print(f"[Process Materials] Syllabus LLM parse fallback: {syll_err}")
-                for line in syllabus_text.splitlines():
-                    line = line.strip()
-                    if (line.startswith("-") or line.startswith("*") or ":" in line) and len(line) < 60:
-                        cand = re.sub(r"^[-*0-9.\s]+", "", line).split(":")[0].strip()
-                        if cand and len(cand) > 3 and cand not in detected_topics:
-                            detected_topics.append(cand)
-        elif syllabus_text_input:
-            syllabus_text = syllabus_text_input
-            syllabus_res = ingestion_service.ingest_raw_text(
-                text=syllabus_text,
-                title=f"{subject_name} Syllabus",
-                document_type="syllabus",
-                subject=subject_name,
-            )
-            syllabus_chunks = syllabus_res.get("chunks_created", 0)
-            try:
-                parsed_syll = parse_syllabus(syllabus_text)
-                for mod in parsed_syll.modules:
-                    for t in mod.topics:
-                        if t and t not in detected_topics:
-                            detected_topics.append(t)
-            except Exception as syll_err:
-                print(f"[Process Materials] Pasted syllabus parse fallback: {syll_err}")
                 for line in syllabus_text.splitlines():
                     line = line.strip()
                     if (line.startswith("-") or line.startswith("*") or ":" in line) and len(line) < 60:
@@ -555,9 +527,9 @@ def process_materials():
                     subject_id=subj.id,
                     topic_name=top,
                     mastery_score=45.0,
-                    confidence=0.0,
-                    attempt_count=0,
-                    correct_count=0
+                    confidence_band="Critical",
+                    questions_attempted=0,
+                    questions_correct=0
                 )
                 db.add(new_m)
         db.commit()

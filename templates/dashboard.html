@@ -23,49 +23,74 @@
             }
         }
         .action-banner {
-            background: var(--yellow);
-            border: 4px solid var(--black);
-            box-shadow: 6px 6px 0px var(--black);
-            padding: 24px;
+            background: var(--white);
+            border: var(--border-thick);
+            box-shadow: var(--shadow-lg);
+            border-radius: 12px;
+            padding: 26px;
             margin-bottom: 25px;
             position: relative;
+            overflow: hidden;
+        }
+        .action-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--royal-purple), var(--cobalt-blue), var(--golden-yellow), var(--mint));
         }
         .stat-card {
             background: var(--white);
-            border: 3px solid var(--black);
-            box-shadow: 4px 4px 0px var(--black);
-            padding: 20px;
+            border: var(--border-med);
+            box-shadow: var(--shadow-md);
+            border-radius: 10px;
+            padding: 22px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .stat-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: var(--shadow-lg);
         }
         .badge-pill {
-            display: inline-block;
-            padding: 4px 10px;
-            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            font-size: 11px;
             font-weight: 800;
-            border: 2px solid var(--black);
+            font-family: var(--font-display);
+            border: var(--border-thin);
+            box-shadow: 2px 2px 0 var(--charcoal);
+            border-radius: 6px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .badge-critical { background: var(--red); color: white; }
-        .badge-weak { background: #ff9800; color: white; }
-        .badge-developing { background: var(--yellow); color: var(--black); }
-        .badge-strong { background: #4caf50; color: white; }
-        .badge-mastered { background: var(--blue); color: white; }
+        .badge-critical { background: var(--coral); color: white; }
+        .badge-weak { background: var(--orange); color: var(--charcoal); }
+        .badge-developing { background: var(--golden-yellow); color: var(--charcoal); }
+        .badge-strong { background: var(--cobalt-blue); color: white; }
+        .badge-mastered { background: var(--mint); color: var(--charcoal); }
         .progress-bar-container {
-            background: #e0e0e0;
-            border: 2px solid var(--black);
+            background: #E6E1D3;
+            border: var(--border-thin);
             height: 18px;
             position: relative;
             overflow: hidden;
+            border-radius: 10px;
             margin-top: 6px;
         }
         .progress-fill {
             height: 100%;
-            transition: width 0.4s ease;
+            border-radius: 8px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .graph-viewport {
             width: 100%;
             height: 380px;
-            border: 3px solid var(--black);
-            background: #fdfae7;
+            border: var(--border-thick);
+            background: #FAF6ED;
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
             position: relative;
             overflow: hidden;
         }
@@ -73,20 +98,22 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(17, 17, 17, 0.75);
+            backdrop-filter: blur(4px);
             z-index: 999;
             align-items: center;
             justify-content: center;
         }
         .modal-card {
             background: var(--white);
-            border: 4px solid var(--black);
-            box-shadow: 8px 8px 0px var(--black);
+            border: var(--border-thick);
+            box-shadow: var(--shadow-xl);
             max-width: 650px;
             width: 90%;
             max-height: 85vh;
             overflow-y: auto;
             padding: 28px;
+            border-radius: 14px;
         }
         .evidence-drawer {
             position: fixed;
@@ -96,10 +123,10 @@
             max-width: 90vw;
             height: 100vh;
             background: var(--white);
-            border-left: 5px solid var(--black);
-            box-shadow: -10px 0 35px rgba(0,0,0,0.3);
+            border-left: var(--border-thick);
+            box-shadow: -10px 0 35px rgba(0,0,0,0.25);
             z-index: 1050;
-            padding: 24px;
+            padding: 26px;
             box-sizing: border-box;
             overflow-y: auto;
             transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -138,8 +165,7 @@
             <div>
                 <span class="badge-pill badge-mastered">CURRENT ACTIVE COURSE</span>
                 <h1 style="margin: 6px 0 0; font-size: 32px; font-weight: 900;">
-                    <span id="dashboard-subject-title">OPERATING SYSTEMS</span>
-                    <span id="dashboard-subject-code" style="font-size: 18px; color: #555;"></span>
+                    OPERATING SYSTEMS <span style="font-size: 18px; color: #555;">(CS301)</span>
                 </h1>
             </div>
             <div style="display: flex; gap: 15px;">
@@ -283,7 +309,7 @@
             <button onclick="closeEvidenceDrawer()" style="background: none; border: none; font-size: 24px; font-weight: 900; cursor: pointer;">✕</button>
         </div>
         <div style="font-size: 12px; font-weight: 800; color: #666; text-transform: uppercase;">EMPIRICAL EVIDENCE AUDIT</div>
-        <h3 style="font-size: 22px; font-weight: 900; margin: 4px 0 12px;" id="ev-topic-title">HISTORICAL TOPIC EVIDENCE</h3>
+        <h3 style="font-size: 22px; font-weight: 900; margin: 4px 0 12px;" id="ev-topic-title">DEADLOCK & RESOURCE ALLOCATION</h3>
         
         <div style="background: #fffdf2; border: 2px solid var(--black); padding: 12px; margin-bottom: 15px;">
             <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px;">STUDENT MASTERY vs RELEVANCE:</div>
@@ -545,11 +571,7 @@
 
     <!-- SCRIPTS -->
     <script>
-        const dashboardSubject = new URLSearchParams(window.location.search).get("subject")
-            || {{ session.get("current_subject", "Operating Systems")|tojson }};
-        let currentSubject = dashboardSubject && dashboardSubject.trim()
-            ? dashboardSubject.trim()
-            : "Operating Systems";
+        let currentSubject = "Operating Systems";
         let activeAdaptiveSessionId = null;
         let activeVivaSessionId = null;
 
@@ -571,10 +593,6 @@
         }
 
         function renderDashboard(data) {
-            const subjectTitle = document.getElementById("dashboard-subject-title");
-            if (subjectTitle) subjectTitle.textContent = (data.subject || currentSubject).toUpperCase();
-            document.title = `Abhyas AI | ${data.subject || currentSubject} Dashboard`;
-
             // Readiness
             const readinessEl = document.getElementById("overall-readiness");
             if (readinessEl) readinessEl.textContent = `${data.overall_mastery}%`;
