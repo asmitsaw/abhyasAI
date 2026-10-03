@@ -1,5 +1,7 @@
 import uuid
+import json
 from typing import Any, Dict, List, Optional
+from models.database import QuizAttempt, QuestionAttempt, SessionLocal, Subject
 from services.mastery_service import MasteryService
 from services.llm.provider_factory import get_llm_provider
 
@@ -33,13 +35,29 @@ class AdaptiveQuizService:
         initial_difficulty = "Medium"
         active_topic = topic_name or "CPU Scheduling"
 
-        # Generate initial question
-        first_q = self._generate_adaptive_question(
+        question_bank = self._generate_question_bank(
             subject=subject_name,
             topic=active_topic,
             difficulty=initial_difficulty,
-            q_num=1
+            total_questions=total_questions
         )
+        first_q = question_bank[0]
+
+        db = SessionLocal()
+        quiz_attempt_id = None
+        try:
+            subject = db.query(Subject).filter(Subject.name == subject_name).first()
+            attempt = QuizAttempt(
+                student_id=student_id,
+                subject_id=subject.id if subject else None,
+                total_questions=total_questions,
+                score=0,
+            )
+            db.add(attempt)
+            db.commit()
+            quiz_attempt_id = attempt.id
+        finally:
+            db.close()
 
         session_state = {
             "session_id": session_id,
@@ -52,6 +70,8 @@ class AdaptiveQuizService:
             "score": 0,
             "streak": 0,
             "history": [],
+            "question_bank": question_bank,
+            "quiz_attempt_id": quiz_attempt_id,
             "current_question": first_q
         }
         self._active_sessions[session_id] = session_state
@@ -100,6 +120,27 @@ class AdaptiveQuizService:
             response_time_seconds=response_time_seconds
         )
 
+        db = SessionLocal()
+        try:
+            db.add(QuestionAttempt(
+                quiz_attempt_id=session.get("quiz_attempt_id"),
+                student_id=session["student_id"],
+                topic_name=session["current_topic"],
+                question_text=current_q["question"],
+                selected_option=selected_option,
+                correct_option=current_q["correct_answer"],
+                is_correct=is_correct,
+                difficulty=session["current_difficulty"],
+                response_time_seconds=response_time_seconds,
+            ))
+            if session.get("quiz_attempt_id") and session["question_index"] >= session["total_questions"]:
+                attempt = db.get(QuizAttempt, session["quiz_attempt_id"])
+                if attempt:
+                    attempt.score = session["score"]
+            db.commit()
+        finally:
+            db.close()
+
         # Determine next difficulty and topic adaptation
         if is_correct:
             if session["current_difficulty"] == "Easy":
@@ -143,14 +184,8 @@ class AdaptiveQuizService:
             del self._active_sessions[session_id]
             return final_report
 
-        # Generate next adapted question
         session["question_index"] += 1
-        next_q = self._generate_adaptive_question(
-            subject=session["subject_name"],
-            topic=session["current_topic"],
-            difficulty=next_diff,
-            q_num=session["question_index"]
-        )
+        next_q = session["question_bank"][session["question_index"] - 1]
         session["current_question"] = next_q
 
         return {
@@ -221,3 +256,57 @@ class AdaptiveQuizService:
             "correct_answer": "A. Maximize resource utilization and minimize latency",
             "explanation": "Operating systems aim to optimize hardware utilization while providing low response latency."
         }
+
+    def _generate_question_bank(
+        self,
+        subject: str,
+        topic: str,
+        difficulty: str,
+        total_questions: int,
+    ) -> List[Dict[str, Any]]:
+        """Generate the complete quiz once; answer submission stays local and fast."""
+        prompt = (
+            f"Subject: {subject}\n"
+            f"Uploaded curriculum focus: {topic}\n"
+            f"Difficulty progression: {difficulty}, then adapt across the set.\n"
+            f"Generate exactly {total_questions} distinct MCQs based only on this subject/topic.\n"
+            "Each must have exactly 4 options, one correct_answer matching an option exactly, "
+            "and a concise explanation. Do not use Operating Systems content unless that is the "
+            "provided subject/topic. Return JSON as {\"questions\": [...]}."
+        )
+        schema = {
+            "type": "object",
+            "properties": {
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "question": {"type": "string"},
+                            "options": {"type": "array", "items": {"type": "string"}},
+                            "correct_answer": {"type": "string"},
+                            "explanation": {"type": "string"},
+                        },
+                        "required": ["question", "options", "correct_answer", "explanation"],
+                    },
+                }
+            },
+            "required": ["questions"],
+        }
+        try:
+            data = json.loads(self.provider.generate_json(prompt=prompt, schema=schema))
+            questions = data.get("questions", [])
+            valid = [
+                q for q in questions
+                if len(q.get("options", [])) == 4
+                and q.get("correct_answer") in q.get("options", [])
+            ]
+            if len(valid) >= total_questions:
+                return valid[:total_questions]
+        except Exception as error:
+            print(f"Adaptive quiz bank generation fallback: {error}")
+
+        return [
+            self._generate_adaptive_question(subject, topic, difficulty, index)
+            for index in range(1, total_questions + 1)
+        ]

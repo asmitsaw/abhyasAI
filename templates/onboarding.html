@@ -233,7 +233,7 @@
             try {
                 // Step 1: Read files
                 updateStep(1, "active");
-                await delay(700);
+                await delay(200);
                 updateStep(1, "done");
 
                 // Step 2: Extracting syllabus — fires off real API
@@ -244,15 +244,10 @@
                     body: formData
                 });
 
-                // Show step 3 after 3 seconds (still waiting for API)
-                await delay(3000);
+                // Move timeline immediately; do not add artificial waiting.
+                await delay(200);
                 updateStep(2, "done");
                 updateStep(3, "active");
-
-                // Show step 4 after another 3 seconds
-                await delay(3000);
-                updateStep(3, "done");
-                updateStep(4, "active");
 
                 // Now actually wait for the API to resolve
                 const res = await fetchPromise;
@@ -267,17 +262,20 @@
                     return;
                 }
 
+                updateStep(3, "done");
+                updateStep(4, "active");
+                await delay(120);
                 updateStep(4, "done");
                 updateStep(5, "active");
-                await delay(800);
+                await delay(120);
                 updateStep(5, "done");
 
                 updateStep(6, "active");
-                await delay(600);
+                await delay(120);
                 updateStep(6, "done");
 
                 updateStep(7, "active");
-                await delay(500);
+                await delay(120);
                 updateStep(7, "done");
 
                 document.getElementById("stage-badge").className = "status-badge status-green";
@@ -286,6 +284,16 @@
                 if (dashboardLink && data.data && data.data.subject) {
                     dashboardLink.href = `/dashboard?subject=${encodeURIComponent(data.data.subject)}`;
                 }
+
+                const warnings = (data.data && data.data.rag_indexing && data.data.rag_indexing.warnings) || [];
+                if (warnings.length > 0) {
+                    alert(
+                        "Materials processed with partial indexing.\n\n" +
+                        "Dashboard personalization is available, but cloud RAG indexing had warnings:\n- " +
+                        warnings.join("\n- ")
+                    );
+                }
+
                 readyBanner.style.display = "block";
                 readyBanner.scrollIntoView({ behavior: 'smooth' });
 

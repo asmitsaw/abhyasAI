@@ -182,7 +182,13 @@ def start_adaptive_quiz():
         data = request.get_json() or {}
         student_id = get_current_student_id()
         subject = data.get("subject", "Operating Systems")
-        topic = data.get("topic", "CPU Scheduling")
+        topic = data.get("topic", "").strip()
+        if not topic:
+            topic = study_planner.get_what_should_i_study_now(
+                student_id=student_id,
+                subject_name=subject,
+                available_minutes=25,
+            ).get("recommended_topic", "Core Concepts")
         total_q = int(data.get("total_questions", 8))
 
         res = adaptive_quiz.start_adaptive_quiz(
@@ -414,6 +420,22 @@ def process_materials():
             or "Operating Systems"
         )
         session["current_subject"] = subject_name
+        indexing_warnings = []
+
+        def safe_ingest(file_source, filename, document_type, subject, year=""):
+            try:
+                return ingestion_service.ingest_document(
+                    file_source=file_source,
+                    filename=filename,
+                    document_type=document_type,
+                    subject=subject,
+                    year=year
+                )
+            except Exception as ingest_err:
+                indexing_warnings.append(
+                    f"{document_type.upper()} indexing skipped for '{filename}': {str(ingest_err)}"
+                )
+                return {"chunks_created": 0, "status": "indexing_skipped"}
 
         # 1. Ingest Syllabus
         syllabus_file = request.files.get("syllabus_file")
@@ -423,7 +445,7 @@ def process_materials():
 
         syllabus_text_input = request.form.get("syllabus_text", "").strip()
         if syllabus_file and syllabus_file.filename:
-            syllabus_res = ingestion_service.ingest_document(
+            syllabus_res = safe_ingest(
                 file_source=syllabus_file.stream,
                 filename=syllabus_file.filename,
                 document_type="syllabus",
@@ -479,7 +501,7 @@ def process_materials():
             f = request.files.get(k)
             if f and f.filename:
                 year_cand = str(2026 - idx)
-                res = ingestion_service.ingest_document(
+                res = safe_ingest(
                     file_source=f.stream,
                     filename=f.filename,
                     document_type="pyq",
@@ -514,7 +536,7 @@ def process_materials():
         notes_file = request.files.get("notes_file")
         notes_chunks = 0
         if notes_file and notes_file.filename:
-            notes_res = ingestion_service.ingest_document(
+            notes_res = safe_ingest(
                 file_source=notes_file.stream,
                 filename=notes_file.filename,
                 document_type="notes",
@@ -554,12 +576,17 @@ def process_materials():
                     student_id=student_id,
                     subject_id=subj.id,
                     topic_name=top,
-                    mastery_score=45.0,
+                    mastery_score=0.0,
                     confidence=0.0,
                     attempt_count=0,
                     correct_count=0
                 )
                 db.add(new_m)
+            elif existing_m.attempt_count == 0 and existing_m.mastery_score == 45.0:
+                # Replace the former placeholder baseline with an honest
+                # zero until the student has attempted an assessment.
+                existing_m.mastery_score = 0.0
+                existing_m.confidence = 0.0
         db.commit()
 
         total_chunks = syllabus_chunks + pyq_chunks + notes_chunks
@@ -572,7 +599,11 @@ def process_materials():
                 "pyq_questions_detected": len(pyq_questions_list) or 15,
                 "concepts_identified": len(detected_topics),
                 "recurring_topics_found": min(len(detected_topics), 5),
-                "knowledge_graph_built": True
+                "knowledge_graph_built": True,
+                "rag_indexing": {
+                    "status": "partial_success" if indexing_warnings else "success",
+                    "warnings": indexing_warnings
+                }
             }
         })
 
