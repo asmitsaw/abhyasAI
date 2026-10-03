@@ -43,8 +43,8 @@ class AdaptiveQuizService:
         )
         first_q = question_bank[0]
 
-        db = SessionLocal()
         quiz_attempt_id = None
+        db = SessionLocal()
         try:
             subject = db.query(Subject).filter(Subject.name == subject_name).first()
             attempt = QuizAttempt(
@@ -56,6 +56,9 @@ class AdaptiveQuizService:
             db.add(attempt)
             db.commit()
             quiz_attempt_id = attempt.id
+        except Exception as error:
+            db.rollback()
+            print(f"Quiz attempt persistence unavailable: {error}")
         finally:
             db.close()
 
@@ -138,6 +141,9 @@ class AdaptiveQuizService:
                 if attempt:
                     attempt.score = session["score"]
             db.commit()
+        except Exception as error:
+            db.rollback()
+            print(f"Question attempt persistence unavailable: {error}")
         finally:
             db.close()
 
@@ -307,6 +313,19 @@ class AdaptiveQuizService:
             print(f"Adaptive quiz bank generation fallback: {error}")
 
         return [
-            self._generate_adaptive_question(subject, topic, difficulty, index)
+            self._fallback_question(subject, topic, index)
             for index in range(1, total_questions + 1)
         ]
+
+    def _fallback_question(self, subject: str, topic: str, q_num: int) -> Dict[str, Any]:
+        return {
+            "question": f"In {subject} ({topic}), which statement best describes the core idea?",
+            "options": [
+                f"A. Applying the main principles of {topic}",
+                "B. Ignoring the syllabus and source material",
+                "C. Removing all constraints from the problem",
+                "D. Using an unrelated process",
+            ],
+            "correct_answer": f"A. Applying the main principles of {topic}",
+            "explanation": f"This checks the central principle of {topic} from the uploaded curriculum.",
+        }

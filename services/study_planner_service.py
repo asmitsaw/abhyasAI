@@ -191,11 +191,21 @@ class StudyPlannerService:
         topics_to_cram = ranked[:4] if ranked else []
         if not topics_to_cram:
             topics_to_cram = [
-                {"topic": "Deadlock Handling (Banker's Algorithm)", "total_marks": 20, "mastery_score": 0},
-                {"topic": "Paging & Page Replacement (FIFO/LRU)", "total_marks": 20, "mastery_score": 0},
-                {"topic": "CPU Scheduling (FCFS, Round Robin)", "total_marks": 15, "mastery_score": 0},
-                {"topic": "Process Synchronization (Semaphores)", "total_marks": 15, "mastery_score": 0}
-            ]
+                {
+                    "topic": item["topic_name"],
+                    "total_marks": 0,
+                    "mastery_score": item.get("mastery_score", 0),
+                    "mastery_band": item.get("mastery_band", "Critical"),
+                }
+                for item in mastery_data.get("topics", [])
+            ][:4]
+        if not topics_to_cram:
+            topics_to_cram = [{
+                "topic": f"{subject_name} core concepts",
+                "total_marks": 0,
+                "mastery_score": 0,
+                "mastery_band": "Critical",
+            }]
 
         per_topic_time = study_pool // len(topics_to_cram)
 
@@ -205,7 +215,12 @@ class StudyPlannerService:
                 "topic": item["topic"],
                 "duration_minutes": per_topic_time,
                 "strategy": "High-Yield Cram: Focus on definitions, diagrams, and standard 5-10 mark steps.",
-                "why": f"Historically accounts for significant marks ({item.get('total_marks', 'High')} marks) with low current mastery."
+                "why": (
+                    f"Historically accounts for {item.get('total_marks', 0)} uploaded PYQ marks "
+                    f"with low current mastery."
+                    if item.get("total_marks", 0)
+                    else "No uploaded PYQ evidence is available yet; start with this topic and build evidence."
+                )
             })
 
         schedule.append({

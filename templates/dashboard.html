@@ -219,7 +219,7 @@
         <!-- MAIN TWO-COLUMN WORKSPACE -->
         <div class="dash-grid">
             
-            <!-- LEFT COLUMN: TOPIC MASTERY & CONCEPT GRAPH -->
+            <!-- LEFT COLUMN: TOPIC MASTERY -->
             <div>
                 <!-- TOPIC MASTERY HEATMAP -->
                 <div class="stat-card" style="margin-bottom: 25px;">
@@ -234,22 +234,6 @@
                     </div>
                 </div>
 
-                <!-- INTERACTIVE KNOWLEDGE GRAPH -->
-                <div class="stat-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <div>
-                            <h3 style="margin: 0; font-size: 20px; font-weight: 900;">🧠 CURRICULUM CONCEPT GRAPH</h3>
-                            <div style="font-size: 12px; color: #555;">Color indicates current mastery state (Red=Critical, Yellow=Developing, Blue=Mastered)</div>
-                        </div>
-                        <button class="comic-button white" style="padding: 4px 10px; font-size: 12px;" onclick="loadConceptGraph()">
-                            REFRESH 🔄
-                        </button>
-                    </div>
-
-                    <div class="graph-viewport" id="graph-container">
-                        <svg id="concept-svg" width="100%" height="100%"></svg>
-                    </div>
-                </div>
             </div>
 
             <!-- RIGHT COLUMN: PYQ INTELLIGENCE & QUICK MODES -->
@@ -571,7 +555,8 @@
 
     <!-- SCRIPTS -->
     <script>
-        let currentSubject = "Operating Systems";
+        const subjectFromUrl = new URLSearchParams(window.location.search).get("subject");
+        let currentSubject = subjectFromUrl || localStorage.getItem("abhyas_subject") || "My Subject";
         let activeAdaptiveSessionId = null;
         let activeVivaSessionId = null;
 
@@ -643,7 +628,6 @@
                 `).join("");
             }
 
-            loadConceptGraph();
         }
 
         async function triggerSeedDemo() {
@@ -656,91 +640,6 @@
                 }
             } catch (err) {
                 alert("Failed to seed demo data: " + err);
-            }
-        }
-
-        // --- CONCEPT GRAPH RENDERING ---
-        async function loadConceptGraph() {
-            try {
-                const res = await fetch(`/api/graph/${encodeURIComponent(currentSubject)}`);
-                const json = await res.json();
-                if (!json.success || !json.data.graph) return;
-
-                const svg = document.getElementById("concept-svg");
-                svg.innerHTML = "";
-
-                const graph = json.data.graph;
-                const nodes = graph.nodes;
-                const links = graph.links;
-
-                // Layout nodes across tiers: Root (left), Modules (middle), Topics (right)
-                const width = svg.clientWidth || 600;
-                const height = svg.clientHeight || 360;
-
-                nodes.forEach((node, i) => {
-                    if (node.type === "SUBJECT") {
-                        node.x = 60;
-                        node.y = height / 2;
-                    } else if (node.type === "MODULE") {
-                        node.x = 220;
-                        const modNodes = nodes.filter(n => n.type === "MODULE");
-                        const idx = modNodes.indexOf(node);
-                        node.y = (height / (modNodes.length + 1)) * (idx + 1);
-                    } else {
-                        node.x = width - 140;
-                        const topNodes = nodes.filter(n => n.type === "TOPIC");
-                        const idx = topNodes.indexOf(node);
-                        node.y = (height / (topNodes.length + 1)) * (idx + 1);
-                    }
-                });
-
-                // Draw links
-                links.forEach(link => {
-                    const src = nodes.find(n => n.id === link.source);
-                    const tgt = nodes.find(n => n.id === link.target);
-                    if (src && tgt) {
-                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                        line.setAttribute("x1", src.x);
-                        line.setAttribute("y1", src.y);
-                        line.setAttribute("x2", tgt.x);
-                        line.setAttribute("y2", tgt.y);
-                        line.setAttribute("stroke", "#101010");
-                        line.setAttribute("stroke-width", "2");
-                        line.setAttribute("stroke-dasharray", link.relationship === "PREREQUISITE_OF" ? "4" : "0");
-                        svg.appendChild(line);
-                    }
-                });
-
-                // Draw nodes
-                nodes.forEach(node => {
-                    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    g.style.cursor = "pointer";
-                    g.onclick = () => alert(`Topic: ${node.label}\nCurrent Mastery: ${node.mastery_score}%\nBand: ${node.mastery_band || 'Core'}`);
-
-                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                    circle.setAttribute("cx", node.x);
-                    circle.setAttribute("cy", node.y);
-                    circle.setAttribute("r", node.size || 14);
-                    circle.setAttribute("fill", node.color || "#ffd91a");
-                    circle.setAttribute("stroke", "#101010");
-                    circle.setAttribute("stroke-width", "3");
-                    g.appendChild(circle);
-
-                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                    text.setAttribute("x", node.x + (node.type === "TOPIC" ? 18 : -18));
-                    text.setAttribute("y", node.y + 4);
-                    text.setAttribute("text-anchor", node.type === "TOPIC" ? "start" : "end");
-                    text.setAttribute("font-size", "11");
-                    text.setAttribute("font-weight", "800");
-                    text.setAttribute("fill", "#101010");
-                    text.textContent = node.label.length > 20 ? node.label.slice(0, 18) + '...' : node.label;
-                    g.appendChild(text);
-
-                    svg.appendChild(g);
-                });
-
-            } catch (e) {
-                console.error("Concept graph render error:", e);
             }
         }
 
@@ -778,23 +677,19 @@
                 body: "Every uploaded previous year question paper is parsed, vectorized into ChromaDB, and scored for empirical historical frequency, marks weightage, and Bloom taxonomy depth. No fabricated exam predictions."
             },
             {
-                title: "3. INTERACTIVE KNOWLEDGE GRAPH",
-                body: "A living DAG of curriculum modules, topics, and concepts. Edges represent strict prerequisite dependencies. Color coding updates in real time as your mastery rises from Red (Critical) to Blue (Mastered)."
-            },
-            {
-                title: "4. WHAT SHOULD I STUDY NOW?",
+                title: "3. WHAT SHOULD I STUDY NOW?",
                 body: "The core decision engine: solves student decision paralysis by calculating the exact highest-yield topic and session length (e.g. 25 min) based on low mastery × high historical exam weight."
             },
             {
-                title: "5. ADAPTIVE DIAGNOSTIC QUIZ",
+                title: "4. ADAPTIVE DIAGNOSTIC QUIZ",
                 body: "Tests student ability with live difficulty scaling (Easy → Medium → Hard). Every answer updates student mastery bands dynamically using our deterministic mastery service."
             },
             {
-                title: "6. AI VIVA VOCE ARENA",
+                title: "5. AI VIVA VOCE ARENA",
                 body: "A full-screen oral defense simulator featuring 3 examiner personas (Professor, Strict Examiner, Friendly Mentor), speech recognition, and adaptive follow-up probing."
             },
             {
-                title: "7. ANSWER EVALUATOR & EXAM ANSWER MODE",
+                title: "6. ANSWER EVALUATOR & EXAM ANSWER MODE",
                 body: "Evaluates student written answers on Content, Structure, Technical Accuracy, and Completeness, or generates 2/5/10/15 mark calibrated topper answers with diagrams."
             }
         ];
@@ -901,6 +796,9 @@
                     })
                 });
                 const json = await res.json();
+                if (!res.ok || !json.success || !json.data) {
+                    throw new Error(json.error || "The emergency plan could not be generated.");
+                }
                 const plan = json.data;
                 const resultBox = document.getElementById("cooked-plan-result");
                 resultBox.style.display = "block";
@@ -919,7 +817,9 @@
                     </div>
                 `;
             } catch (err) {
-                alert("Error generating emergency plan: " + err);
+                document.getElementById("cooked-plan-result").style.display = "block";
+                document.getElementById("cooked-plan-result").textContent =
+                    "Could not generate the plan: " + err.message;
             } finally {
                 btn.textContent = "CREATE EMERGENCY PLAN 💥";
                 btn.disabled = false;
