@@ -138,7 +138,8 @@
             <div>
                 <span class="badge-pill badge-mastered">CURRENT ACTIVE COURSE</span>
                 <h1 style="margin: 6px 0 0; font-size: 32px; font-weight: 900;">
-                    OPERATING SYSTEMS <span style="font-size: 18px; color: #555;">(CS301)</span>
+                    <span id="dashboard-subject-title">OPERATING SYSTEMS</span>
+                    <span id="dashboard-subject-code" style="font-size: 18px; color: #555;"></span>
                 </h1>
             </div>
             <div style="display: flex; gap: 15px;">
@@ -282,7 +283,7 @@
             <button onclick="closeEvidenceDrawer()" style="background: none; border: none; font-size: 24px; font-weight: 900; cursor: pointer;">✕</button>
         </div>
         <div style="font-size: 12px; font-weight: 800; color: #666; text-transform: uppercase;">EMPIRICAL EVIDENCE AUDIT</div>
-        <h3 style="font-size: 22px; font-weight: 900; margin: 4px 0 12px;" id="ev-topic-title">DEADLOCK & RESOURCE ALLOCATION</h3>
+        <h3 style="font-size: 22px; font-weight: 900; margin: 4px 0 12px;" id="ev-topic-title">HISTORICAL TOPIC EVIDENCE</h3>
         
         <div style="background: #fffdf2; border: 2px solid var(--black); padding: 12px; margin-bottom: 15px;">
             <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px;">STUDENT MASTERY vs RELEVANCE:</div>
@@ -544,7 +545,11 @@
 
     <!-- SCRIPTS -->
     <script>
-        let currentSubject = "Operating Systems";
+        const dashboardSubject = new URLSearchParams(window.location.search).get("subject")
+            || {{ session.get("current_subject", "Operating Systems")|tojson }};
+        let currentSubject = dashboardSubject && dashboardSubject.trim()
+            ? dashboardSubject.trim()
+            : "Operating Systems";
         let activeAdaptiveSessionId = null;
         let activeVivaSessionId = null;
 
@@ -566,6 +571,10 @@
         }
 
         function renderDashboard(data) {
+            const subjectTitle = document.getElementById("dashboard-subject-title");
+            if (subjectTitle) subjectTitle.textContent = (data.subject || currentSubject).toUpperCase();
+            document.title = `Abhyas AI | ${data.subject || currentSubject} Dashboard`;
+
             // Readiness
             const readinessEl = document.getElementById("overall-readiness");
             if (readinessEl) readinessEl.textContent = `${data.overall_mastery}%`;
