@@ -75,9 +75,12 @@
         </a>
         <nav class="nav-links">
             <a href="/dashboard">DASHBOARD</a>
+            <a href="/onboarding" style="color: var(--yellow);">UPLOAD MATERIALS</a>
             <a href="/learn">LEARN LAB</a>
             <a href="/exam">EXAM PREP</a>
-            <a href="/onboarding" style="color: var(--yellow);">SETUP EXAM</a>
+            <a href="/viva-arena">AI VIVA</a>
+            <a href="/answer-evaluator">EVALUATOR</a>
+            <a href="/answer-mode">EXAM ANSWERS</a>
         </nav>
         <a href="/dashboard" class="comic-button yellow" style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
             VIEW DASHBOARD →
@@ -166,7 +169,7 @@
                         BUILDING YOUR EXAM INTELLIGENCE...
                     </h2>
                     <p style="font-size: 14px; font-weight: 600; color: #555;">
-                        Real-time execution: parsing documents, indexing ChromaDB vectors, and ranking historical topics.
+                        Real-time execution: parsing documents, indexing into Chroma Cloud (hybrid vectors), and ranking historical topics.
                     </p>
                 </div>
 
@@ -227,64 +230,75 @@
 
             const formData = new FormData(form);
 
-            // Execute real pipeline steps
             try {
                 // Step 1: Read files
                 updateStep(1, "active");
-                await new Promise(r => setTimeout(r, 600));
+                await delay(700);
                 updateStep(1, "done");
 
-                // Step 2 & 3: Submit to backend processing endpoint
+                // Step 2: Extracting syllabus — fires off real API
                 updateStep(2, "active");
-                const res = await fetch("/api/process-materials", {
+
+                const fetchPromise = fetch("/api/process-materials", {
                     method: "POST",
                     body: formData
                 });
+
+                // Show step 3 after 3 seconds (still waiting for API)
+                await delay(3000);
+                updateStep(2, "done");
+                updateStep(3, "active");
+
+                // Show step 4 after another 3 seconds
+                await delay(3000);
+                updateStep(3, "done");
+                updateStep(4, "active");
+
+                // Now actually wait for the API to resolve
+                const res = await fetchPromise;
                 const data = await res.json();
-                
+
                 if (!data.success) {
                     alert("Processing notice: " + (data.error || "Failed to process materials."));
                     location.reload();
                     return;
                 }
 
-                updateStep(2, "done");
-                updateStep(3, "active");
-                await new Promise(r => setTimeout(r, 600));
-                updateStep(3, "done");
-
-                updateStep(4, "active");
-                await new Promise(r => setTimeout(r, 600));
                 updateStep(4, "done");
-
                 updateStep(5, "active");
-                await new Promise(r => setTimeout(r, 600));
+                await delay(800);
                 updateStep(5, "done");
 
                 updateStep(6, "active");
-                await new Promise(r => setTimeout(r, 500));
+                await delay(600);
                 updateStep(6, "done");
 
                 updateStep(7, "active");
-                await new Promise(r => setTimeout(r, 400));
+                await delay(500);
                 updateStep(7, "done");
 
                 document.getElementById("stage-badge").className = "status-badge status-green";
                 document.getElementById("stage-badge").textContent = "PROCESSING COMPLETED";
                 readyBanner.style.display = "block";
+                readyBanner.scrollIntoView({ behavior: 'smooth' });
 
             } catch (err) {
                 console.error(err);
                 alert("Something went wrong during ingestion: " + err);
+                location.reload();
             }
         });
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
         function updateStep(stepNum, status) {
             const stepEl = document.getElementById(`step-${stepNum}`);
             if (!stepEl) return;
             stepEl.className = `timeline-step ${status}`;
             if (status === "done") {
-                stepEl.querySelector(".step-icon").innerHTML = "✓";
+                stepEl.querySelector(".step-icon").innerHTML = "\u2713";
                 stepEl.querySelector(".step-icon").style.background = "#4caf50";
                 stepEl.querySelector(".step-icon").style.color = "white";
             }
