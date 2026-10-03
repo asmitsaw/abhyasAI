@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             margin: 40px auto;
             padding: 0 20px 80px;
         }
+
         .eval-card {
             background: var(--white);
             border: var(--border-thick);
@@ -19,12 +21,14 @@
             margin-top: 24px;
             border-radius: 14px;
         }
+
         .score-pill-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 14px;
             margin: 22px 0;
         }
+
         .metric-box {
             background: var(--white);
             border: var(--border-med);
@@ -34,10 +38,12 @@
             border-radius: 10px;
             transition: transform 0.15s ease;
         }
+
         .metric-box:hover {
             transform: translate(-2px, -2px);
             box-shadow: var(--shadow-md);
         }
+
         .metric-val {
             font-size: 24px;
             font-weight: 800;
@@ -47,6 +53,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- NAVBAR -->
@@ -63,13 +70,14 @@
             <a href="/answer-evaluator" style="color: var(--yellow);">EVALUATOR</a>
             <a href="/answer-mode">EXAM ANSWERS</a>
         </nav>
-        <a href="/dashboard" class="comic-button yellow" style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
+        <a href="/dashboard" class="comic-button yellow"
+            style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
             VIEW DASHBOARD →
         </a>
     </header>
 
     <div class="eval-container">
-        
+
         <div style="text-align: center; margin-bottom: 20px;">
             <span class="comic-button red" style="pointer-events: none; padding: 4px 14px; font-size: 12px;">
                 RUBRIC-GROUNDED GRADING 💥
@@ -78,7 +86,8 @@
                 UNIVERSITY ANSWER EVALUATOR
             </h1>
             <p style="font-size: 15px; color: #555; max-width: 650px; margin: 0 auto; font-weight: 600;">
-                Submit your written answer. Abhyas AI evaluates it against official university grading criteria, detects missing concepts, suggests structural improvements, and updates your topic mastery.
+                Submit your written answer. Abhyas AI evaluates it against official university grading criteria, detects
+                missing concepts, suggests structural improvements, and updates your topic mastery.
             </p>
         </div>
 
@@ -87,12 +96,17 @@
             <form id="eval-form">
                 <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div>
-                        <label style="font-weight: 800; font-size: 14px; display: block; margin-bottom: 6px;">QUESTION:</label>
-                        <input type="text" id="eval-q" value="Explain Banker's Algorithm for deadlock avoidance with safety algorithm." required style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 700; box-sizing: border-box;">
+                        <label
+                            style="font-weight: 800; font-size: 14px; display: block; margin-bottom: 6px;">QUESTION:</label>
+                        <input type="text" id="eval-q"
+                            value="Explain Banker's Algorithm for deadlock avoidance with safety algorithm." required
+                            style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 700; box-sizing: border-box;">
                     </div>
                     <div>
-                        <label style="font-weight: 800; font-size: 14px; display: block; margin-bottom: 6px;">ALLOCATED MARKS:</label>
-                        <select id="eval-m" style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 800; background: white; box-sizing: border-box;">
+                        <label style="font-weight: 800; font-size: 14px; display: block; margin-bottom: 6px;">ALLOCATED
+                            MARKS:</label>
+                        <select id="eval-m"
+                            style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 800; background: white; box-sizing: border-box;">
                             <option value="2">2 Marks</option>
                             <option value="5">5 Marks</option>
                             <option value="10" selected>10 Marks</option>
@@ -102,11 +116,15 @@
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="font-weight: 800; font-size: 14px; display: block; margin-bottom: 6px;">YOUR WRITTEN ANSWER:</label>
-                    <textarea id="eval-ans" rows="8" placeholder="Type or paste your complete exam answer here..." required style="width: 100%; padding: 14px; border: 3px solid var(--black); font-family: inherit; font-weight: 600; line-height: 1.5; box-sizing: border-box;"></textarea>
+                    <label style="font-weight: 800; font-size: 14px; display: block; margin-bottom: 6px;">YOUR WRITTEN
+                        ANSWER:</label>
+                    <textarea id="eval-ans" rows="8" placeholder="Type or paste your complete exam answer here..."
+                        required
+                        style="width: 100%; padding: 14px; border: 3px solid var(--black); font-family: inherit; font-weight: 600; line-height: 1.5; box-sizing: border-box;"></textarea>
                 </div>
 
-                <button type="submit" class="comic-button red" id="evaluate-btn" style="width: 100%; font-size: 18px; padding: 16px;">
+                <button type="submit" class="comic-button red" id="evaluate-btn"
+                    style="width: 100%; font-size: 18px; padding: 16px;">
                     EVALUATE ANSWER & UPDATE MASTERY 💥
                 </button>
             </form>
@@ -114,7 +132,8 @@
 
         <!-- EVALUATION RESULTS -->
         <div class="eval-card" id="result-card" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--black); padding-bottom: 15px;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--black); padding-bottom: 15px;">
                 <div>
                     <span style="font-size: 12px; font-weight: 800; color: #666;">OFFICIAL RUBRIC EVALUATION</span>
                     <h2 style="margin: 4px 0 0; font-size: 26px; font-weight: 900;">
@@ -150,19 +169,22 @@
 
             <!-- STRENGTHS -->
             <div style="background: #e8f5e9; border: 2px solid var(--black); padding: 14px; margin-bottom: 15px;">
-                <div style="font-weight: 900; color: #2e7d32; margin-bottom: 6px;">✓ WHAT YOU GOT RIGHT (STRENGTHS):</div>
+                <div style="font-weight: 900; color: #2e7d32; margin-bottom: 6px;">✓ WHAT YOU GOT RIGHT (STRENGTHS):
+                </div>
                 <ul id="strengths-list" style="margin: 0; padding-left: 20px; font-weight: 600; font-size: 14px;"></ul>
             </div>
 
             <!-- MISSING CONCEPTS -->
             <div style="background: #ffebee; border: 2px solid var(--black); padding: 14px; margin-bottom: 15px;">
-                <div style="font-weight: 900; color: #c62828; margin-bottom: 6px;">⚠️ MISSING CONCEPTS & TERMINOLOGY REQUIRED FOR FULL MARKS:</div>
+                <div style="font-weight: 900; color: #c62828; margin-bottom: 6px;">⚠️ MISSING CONCEPTS & TERMINOLOGY
+                    REQUIRED FOR FULL MARKS:</div>
                 <ul id="missing-list" style="margin: 0; padding-left: 20px; font-weight: 600; font-size: 14px;"></ul>
             </div>
 
             <!-- HOW TO IMPROVE -->
             <div style="background: #fffdf2; border: 2px solid var(--black); padding: 14px; margin-bottom: 20px;">
-                <div style="font-weight: 900; color: #101010; margin-bottom: 6px;">💡 HOW TO IMPROVE IN YOUR EXAM BOOK:</div>
+                <div style="font-weight: 900; color: #101010; margin-bottom: 6px;">💡 HOW TO IMPROVE IN YOUR EXAM BOOK:
+                </div>
                 <ul id="advice-list" style="margin: 0; padding-left: 20px; font-weight: 600; font-size: 14px;"></ul>
             </div>
 
@@ -177,9 +199,13 @@
             </div>
 
             <!-- MODEL ANSWER SECTION -->
-            <div id="model-answer-box" style="display: none; margin-top: 20px; border-top: 3px solid var(--black); padding-top: 15px;">
-                <h3 style="margin: 0 0 10px; font-size: 18px; font-weight: 900;">📖 EXEMPLAR UNIVERSITY MODEL ANSWER:</h3>
-                <div id="model-answer-text" style="background: #fbfbfb; border: 2px solid var(--black); padding: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; font-family: inherit; font-weight: 600;"></div>
+            <div id="model-answer-box"
+                style="display: none; margin-top: 20px; border-top: 3px solid var(--black); padding-top: 15px;">
+                <h3 style="margin: 0 0 10px; font-size: 18px; font-weight: 900;">📖 EXEMPLAR UNIVERSITY MODEL ANSWER:
+                </h3>
+                <div id="model-answer-text"
+                    style="background: #fbfbfb; border: 2px solid var(--black); padding: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; font-family: inherit; font-weight: 600;">
+                </div>
             </div>
         </div>
 
@@ -194,7 +220,7 @@
         let currentQuestion = "";
         let currentMarks = 10;
 
-        form.addEventListener("submit", async function(e) {
+        form.addEventListener("submit", async function (e) {
             e.preventDefault();
             const q = document.getElementById("eval-q").value.trim();
             const a = document.getElementById("eval-ans").value.trim();
@@ -223,7 +249,7 @@
 
                 // Render metrics
                 document.getElementById("score-display").textContent = `${data.score} / ${data.max_score}`;
-                
+
                 const ratio = data.score / data.max_score;
                 document.getElementById("metric-content").textContent = `${Math.min(10, Math.round(ratio * 9 + 1))} / 10`;
                 document.getElementById("metric-struct").textContent = `${Math.min(10, Math.round(ratio * 8 + 2))} / 10`;
@@ -277,4 +303,5 @@
         }
     </script>
 </body>
+
 </html>

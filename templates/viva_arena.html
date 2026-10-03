@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
             display: flex;
             flex-direction: column;
         }
+
         .arena-container {
             max-width: 900px;
             margin: 30px auto;
@@ -21,6 +23,7 @@
             width: 100%;
             box-sizing: border-box;
         }
+
         .viva-box {
             background: var(--white);
             border: var(--border-thick);
@@ -29,12 +32,14 @@
             margin-bottom: 24px;
             border-radius: 14px;
         }
+
         .persona-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
             margin: 16px 0 24px;
         }
+
         .persona-card {
             border: var(--border-thick);
             padding: 18px;
@@ -45,16 +50,19 @@
             transition: all 0.15s ease;
             text-align: center;
         }
+
         .persona-card:hover {
             transform: translate(-2px, -2px);
             box-shadow: var(--shadow-lg);
         }
+
         .persona-card.selected {
             background: var(--royal-purple);
             color: white;
             transform: translate(2px, 2px);
             box-shadow: 2px 2px 0 var(--charcoal);
         }
+
         .timer-badge {
             font-size: 20px;
             font-weight: 800;
@@ -67,6 +75,7 @@
             display: inline-block;
             box-shadow: 2px 2px 0 var(--charcoal);
         }
+
         .dialogue-turn {
             border-left: 6px solid var(--charcoal);
             padding: 16px 20px;
@@ -75,14 +84,17 @@
             border-radius: 0 10px 10px 0;
             box-shadow: var(--shadow-sm);
         }
+
         .dialogue-examiner {
             border-left-color: var(--royal-purple);
             background: #F4F0FF;
         }
+
         .dialogue-student {
             border-left-color: var(--mint);
             background: #EAFCF7;
         }
+
         .metric-score-bar {
             background: #E8E3D5;
             border: var(--border-thin);
@@ -92,11 +104,13 @@
             border-radius: 8px;
             overflow: hidden;
         }
+
         .metric-score-fill {
             background: var(--cobalt-blue);
             height: 100%;
             border-radius: 6px;
         }
+
         .record-btn {
             background: #fff;
             border: 3px solid var(--black);
@@ -107,17 +121,26 @@
             align-items: center;
             gap: 8px;
         }
+
         .record-btn.recording {
             background: #ffcdd2;
             color: #b71c1c;
             animation: pulse 1s infinite alternate;
         }
+
         @keyframes pulse {
-            0% { opacity: 0.8; }
-            100% { opacity: 1; transform: scale(1.02); }
+            0% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1.02);
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- NAVBAR -->
@@ -134,7 +157,8 @@
             <a href="/answer-evaluator">EVALUATOR</a>
             <a href="/answer-mode">EXAM ANSWERS</a>
         </nav>
-        <a href="/dashboard" class="comic-button yellow" style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
+        <a href="/dashboard" class="comic-button yellow"
+            style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
             VIEW DASHBOARD →
         </a>
     </header>
@@ -142,35 +166,45 @@
     <div class="arena-container">
         <!-- 1. SETUP SCREEN -->
         <div id="setup-screen" class="viva-box">
-            <span class="badge" style="background: var(--red); color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">ORAL EXAMINATION ARENA</span>
+            <span class="badge"
+                style="background: var(--red); color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">ORAL
+                EXAMINATION ARENA</span>
             <h1 style="font-size: 32px; font-weight: 900; margin: 12px 0 8px;">🎓 AI VIVA VOCE SIMULATOR</h1>
             <p style="font-size: 15px; font-weight: 700; color: #444; margin-bottom: 24px;">
-                Experience realistic university oral defense. The examiner probes concepts dynamically and evaluates your technical precision, clarity, and depth.
+                Experience realistic university oral defense. The examiner probes concepts dynamically and evaluates
+                your technical precision, clarity, and depth.
             </p>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px;">
                 <div>
-                    <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">SUBJECT:</label>
-                    <input type="text" id="viva-subject" value="Operating Systems" style="width: 100%; border: 3px solid var(--black); padding: 10px; font-weight: 700;">
+                    <label
+                        style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">SUBJECT:</label>
+                    <input type="text" id="viva-subject" value="Operating Systems"
+                        style="width: 100%; border: 3px solid var(--black); padding: 10px; font-weight: 700;">
                 </div>
                 <div>
-                    <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">TOPIC / MODULE:</label>
-                    <input type="text" id="viva-topic" value="Process Synchronization & Deadlock" style="width: 100%; border: 3px solid var(--black); padding: 10px; font-weight: 700;">
+                    <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">TOPIC /
+                        MODULE:</label>
+                    <input type="text" id="viva-topic" value="Process Synchronization & Deadlock"
+                        style="width: 100%; border: 3px solid var(--black); padding: 10px; font-weight: 700;">
                 </div>
             </div>
 
             <!-- EXAMINER PERSONA -->
-            <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">CHOOSE YOUR EXAMINER:</label>
+            <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">CHOOSE YOUR
+                EXAMINER:</label>
             <div class="persona-grid">
                 <div class="persona-card selected" data-persona="Professor" onclick="selectPersona(this)">
                     <div style="font-size: 26px;">👨‍🏫</div>
                     <div style="font-weight: 900; margin-top: 4px;">University Professor</div>
-                    <div style="font-size: 12px; color: #555;">Balanced, checks core definitions & foundational working.</div>
+                    <div style="font-size: 12px; color: #555;">Balanced, checks core definitions & foundational working.
+                    </div>
                 </div>
                 <div class="persona-card" data-persona="Strict Examiner" onclick="selectPersona(this)">
                     <div style="font-size: 26px;">🧐</div>
                     <div style="font-weight: 900; margin-top: 4px;">Strict External Examiner</div>
-                    <div style="font-size: 12px; color: #555;">Rigorous, challenges edge cases and shallow definitions.</div>
+                    <div style="font-size: 12px; color: #555;">Rigorous, challenges edge cases and shallow definitions.
+                    </div>
                 </div>
                 <div class="persona-card" data-persona="Friendly Mentor" onclick="selectPersona(this)">
                     <div style="font-size: 26px;">🧑‍💻</div>
@@ -181,48 +215,65 @@
 
             <!-- DURATION -->
             <div style="margin-bottom: 24px;">
-                <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">SESSION DURATION:</label>
+                <label style="font-weight: 900; font-size: 13px; display: block; margin-bottom: 6px;">SESSION
+                    DURATION:</label>
                 <div style="display: flex; gap: 10px;">
-                    <button type="button" class="comic-button yellow" style="padding: 8px 18px; font-size: 14px;" onclick="setDuration(3, this)">3 Minutes (Blitz)</button>
-                    <button type="button" class="comic-button" style="background: white; border: 3px solid var(--black); padding: 8px 18px; font-size: 14px;" onclick="setDuration(5, this)">5 Minutes (Standard)</button>
-                    <button type="button" class="comic-button" style="background: white; border: 3px solid var(--black); padding: 8px 18px; font-size: 14px;" onclick="setDuration(10, this)">10 Minutes (Comprehensive)</button>
+                    <button type="button" class="comic-button yellow" style="padding: 8px 18px; font-size: 14px;"
+                        onclick="setDuration(3, this)">3 Minutes (Blitz)</button>
+                    <button type="button" class="comic-button"
+                        style="background: white; border: 3px solid var(--black); padding: 8px 18px; font-size: 14px;"
+                        onclick="setDuration(5, this)">5 Minutes (Standard)</button>
+                    <button type="button" class="comic-button"
+                        style="background: white; border: 3px solid var(--black); padding: 8px 18px; font-size: 14px;"
+                        onclick="setDuration(10, this)">10 Minutes (Comprehensive)</button>
                 </div>
             </div>
 
-            <button class="comic-button red" style="font-size: 18px; padding: 14px 30px; width: 100%;" onclick="startVivaSession()">
+            <button class="comic-button red" style="font-size: 18px; padding: 14px 30px; width: 100%;"
+                onclick="startVivaSession()">
                 ENTER VIVA ARENA 🎙️
             </button>
         </div>
 
         <!-- 2. LIVE ARENA SCREEN -->
         <div id="live-screen" class="viva-box" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--black); padding-bottom: 14px; margin-bottom: 20px;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--black); padding-bottom: 14px; margin-bottom: 20px;">
                 <div>
-                    <span id="arena-persona-badge" class="badge" style="background: var(--blue); color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">PROFESSOR</span>
+                    <span id="arena-persona-badge" class="badge"
+                        style="background: var(--blue); color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">PROFESSOR</span>
                     <span id="arena-topic-badge" style="font-weight: 800; margin-left: 10px;">Topic: Deadlock</span>
                 </div>
                 <div class="timer-badge" id="viva-timer">03:00</div>
             </div>
 
             <!-- DIALOGUE TRANSCRIPT -->
-            <div id="dialogue-container" style="max-height: 380px; overflow-y: auto; margin-bottom: 20px; padding-right: 8px;">
+            <div id="dialogue-container"
+                style="max-height: 380px; overflow-y: auto; margin-bottom: 20px; padding-right: 8px;">
                 <!-- Populated dynamically -->
             </div>
 
             <!-- STUDENT INPUT AREA -->
             <div style="border-top: 3px solid var(--black); padding-top: 16px;">
-                <label style="font-weight: 900; font-size: 14px; display: block; margin-bottom: 6px;">YOUR ANSWER / DEFENSE:</label>
-                <textarea id="student-answer-input" rows="3" style="width: 100%; border: 3px solid var(--black); padding: 12px; font-weight: 600; font-size: 15px; resize: vertical;" placeholder="Type your answer, or click 'Record Voice' to speak..."></textarea>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap; gap: 10px;">
+                <label style="font-weight: 900; font-size: 14px; display: block; margin-bottom: 6px;">YOUR ANSWER /
+                    DEFENSE:</label>
+                <textarea id="student-answer-input" rows="3"
+                    style="width: 100%; border: 3px solid var(--black); padding: 12px; font-weight: 600; font-size: 15px; resize: vertical;"
+                    placeholder="Type your answer, or click 'Record Voice' to speak..."></textarea>
+
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap; gap: 10px;">
                     <button id="mic-btn" class="record-btn" onclick="toggleSpeechRecognition()">
                         🎤 <span id="mic-text">Record Voice</span>
                     </button>
                     <div style="display: flex; gap: 10px;">
-                        <button class="comic-button" style="background: #eee; border: 3px solid var(--black); font-size: 14px; padding: 10px 16px;" onclick="finishVivaEarly()">
+                        <button class="comic-button"
+                            style="background: #eee; border: 3px solid var(--black); font-size: 14px; padding: 10px 16px;"
+                            onclick="finishVivaEarly()">
                             END VIVA & GET REPORT
                         </button>
-                        <button id="submit-answer-btn" class="comic-button yellow" style="font-size: 15px; padding: 10px 24px;" onclick="submitVivaAnswer()">
+                        <button id="submit-answer-btn" class="comic-button yellow"
+                            style="font-size: 15px; padding: 10px 24px;" onclick="submitVivaAnswer()">
                             SUBMIT DEFENSE →
                         </button>
                     </div>
@@ -232,13 +283,17 @@
 
         <!-- 3. FINAL VIVA REPORT SCREEN -->
         <div id="report-screen" class="viva-box" style="display: none;">
-            <div style="border-bottom: 3px solid var(--black); padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div
+                style="border-bottom: 3px solid var(--black); padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <span class="badge" style="background: #2e7d32; color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">VIVA EVALUATION REPORT</span>
+                    <span class="badge"
+                        style="background: #2e7d32; color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">VIVA
+                        EVALUATION REPORT</span>
                     <h2 style="font-size: 28px; font-weight: 900; margin: 8px 0 0;">ORAL PERFORMANCE AUDIT</h2>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-size: 32px; font-weight: 900; color: #2e7d32;" id="report-overall-score">8.5 / 10</div>
+                    <div style="font-size: 32px; font-weight: 900; color: #2e7d32;" id="report-overall-score">8.5 / 10
+                    </div>
                 </div>
             </div>
 
@@ -249,13 +304,17 @@
                         <span>Concept Knowledge</span>
                         <span id="rep-concept-val">8/10</span>
                     </div>
-                    <div class="metric-score-bar"><div class="metric-score-fill" id="rep-concept-bar" style="width: 80%;"></div></div>
+                    <div class="metric-score-bar">
+                        <div class="metric-score-fill" id="rep-concept-bar" style="width: 80%;"></div>
+                    </div>
 
                     <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
                         <span>Technical Accuracy</span>
                         <span id="rep-tech-val">7/10</span>
                     </div>
-                    <div class="metric-score-bar"><div class="metric-score-fill" id="rep-tech-bar" style="width: 70%;"></div></div>
+                    <div class="metric-score-bar">
+                        <div class="metric-score-fill" id="rep-tech-bar" style="width: 70%;"></div>
+                    </div>
                 </div>
 
                 <div>
@@ -263,13 +322,17 @@
                         <span>Confidence & Fluency</span>
                         <span id="rep-conf-val">9/10</span>
                     </div>
-                    <div class="metric-score-bar"><div class="metric-score-fill" id="rep-conf-bar" style="width: 90%;"></div></div>
+                    <div class="metric-score-bar">
+                        <div class="metric-score-fill" id="rep-conf-bar" style="width: 90%;"></div>
+                    </div>
 
                     <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
                         <span>Completeness of Explanations</span>
                         <span id="rep-comp-val">8/10</span>
                     </div>
-                    <div class="metric-score-bar"><div class="metric-score-fill" id="rep-comp-bar" style="width: 80%;"></div></div>
+                    <div class="metric-score-bar">
+                        <div class="metric-score-fill" id="rep-comp-bar" style="width: 80%;"></div>
+                    </div>
                 </div>
             </div>
 
@@ -277,7 +340,10 @@
             <div style="background: #fffdf5; border: 3px solid var(--black); padding: 18px; margin-bottom: 20px;">
                 <h4 style="margin: 0 0 8px; font-weight: 900;">EXAMINER'S SUMMARY OBSERVATIONS:</h4>
                 <p id="report-summary-text" style="margin: 0; font-size: 14px; line-height: 1.6;">
-                    The student demonstrated strong foundational understanding of Deadlock conditions (Mutual Exclusion, Hold and Wait, No Preemption, Circular Wait) and accurately explained the Banker's Algorithm safety state. Minor hesitation when questioned on real-world deadlock handling in Linux kernel (ignore vs preempt).
+                    The student demonstrated strong foundational understanding of Deadlock conditions (Mutual Exclusion,
+                    Hold and Wait, No Preemption, Circular Wait) and accurately explained the Banker's Algorithm safety
+                    state. Minor hesitation when questioned on real-world deadlock handling in Linux kernel (ignore vs
+                    preempt).
                 </p>
             </div>
 
@@ -298,10 +364,13 @@
             </div>
 
             <div style="display: flex; gap: 12px;">
-                <a href="/dashboard" class="comic-button yellow" style="font-size: 16px; padding: 12px 24px; text-decoration: none;">
+                <a href="/dashboard" class="comic-button yellow"
+                    style="font-size: 16px; padding: 12px 24px; text-decoration: none;">
                     ← RETURN TO DASHBOARD
                 </a>
-                <button class="comic-button" style="background: white; border: 3px solid var(--black); font-size: 16px; padding: 12px 24px;" onclick="location.reload()">
+                <button class="comic-button"
+                    style="background: white; border: 3px solid var(--black); font-size: 16px; padding: 12px 24px;"
+                    onclick="location.reload()">
                     RETAKE VIVA
                 </button>
             </div>
@@ -479,7 +548,7 @@
                 recognition.interimResults = true;
                 recognition.lang = 'en-US';
 
-                recognition.onresult = function(event) {
+                recognition.onresult = function (event) {
                     let transcript = '';
                     for (let i = event.resultIndex; i < event.results.length; ++i) {
                         transcript += event.results[i][0].transcript;
@@ -487,14 +556,14 @@
                     document.getElementById("student-answer-input").value = transcript;
                 };
 
-                recognition.onerror = function(err) {
+                recognition.onerror = function (err) {
                     console.error("Speech error", err);
                     isRecording = false;
                     micBtn.classList.remove("recording");
                     micText.textContent = "Record Voice";
                 };
 
-                recognition.onend = function() {
+                recognition.onend = function () {
                     isRecording = false;
                     micBtn.classList.remove("recording");
                     micText.textContent = "Record Voice";
@@ -515,4 +584,5 @@
         }
     </script>
 </body>
+
 </html>

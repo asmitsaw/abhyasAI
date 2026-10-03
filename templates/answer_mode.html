@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             margin: 40px auto;
             padding: 0 20px 80px;
         }
+
         .comic-card {
             background: var(--white);
             border: 4px solid var(--black);
@@ -18,12 +20,14 @@
             padding: 28px;
             margin-bottom: 24px;
         }
+
         .marks-selector {
             display: flex;
             gap: 12px;
             margin: 16px 0 24px;
             flex-wrap: wrap;
         }
+
         .mark-btn {
             background: #fff;
             border: 3px solid var(--black);
@@ -34,21 +38,25 @@
             box-shadow: 3px 3px 0 var(--black);
             transition: all 0.15s ease;
         }
+
         .mark-btn:hover {
             transform: translate(-2px, -2px);
             box-shadow: 5px 5px 0 var(--black);
         }
+
         .mark-btn.active {
             background: var(--yellow);
             transform: translate(2px, 2px);
             box-shadow: 1px 1px 0 var(--black);
         }
+
         .action-row {
             display: flex;
             gap: 12px;
             margin-top: 18px;
             flex-wrap: wrap;
         }
+
         .answer-content {
             background: #fffdf5;
             border: 3px solid var(--black);
@@ -60,6 +68,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- NAVBAR -->
@@ -76,7 +85,8 @@
             <a href="/answer-evaluator">EVALUATOR</a>
             <a href="/answer-mode" style="color: var(--yellow);">EXAM ANSWERS</a>
         </nav>
-        <a href="/dashboard" class="comic-button yellow" style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
+        <a href="/dashboard" class="comic-button yellow"
+            style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
             VIEW DASHBOARD →
         </a>
     </header>
@@ -88,55 +98,73 @@
                 📝 EXAM ANSWER MODE
             </h1>
             <p style="font-size: 16px; font-weight: 700; margin: 0;">
-                Generate top-scoring, university-calibrated model answers with proper headings, diagrams, architecture, advantages, and limitations based on your exact mark weightage.
+                Generate top-scoring, university-calibrated model answers with proper headings, diagrams, architecture,
+                advantages, and limitations based on your exact mark weightage.
             </p>
         </div>
 
         <!-- GENERATOR FORM -->
         <div class="comic-card">
             <div style="margin-bottom: 18px;">
-                <label style="font-weight: 900; font-size: 14px; display: block; margin-bottom: 6px;">SELECT TARGET MARKS:</label>
+                <label style="font-weight: 900; font-size: 14px; display: block; margin-bottom: 6px;">SELECT TARGET
+                    MARKS:</label>
                 <div class="marks-selector">
-                    <button type="button" class="mark-btn" data-marks="2" onclick="selectMarks(2)">2 Marks (Precise Definition & Key Formula)</button>
-                    <button type="button" class="mark-btn" data-marks="5" onclick="selectMarks(5)">5 Marks (Concept + Architecture + Example)</button>
-                    <button type="button" class="mark-btn active" data-marks="10" onclick="selectMarks(10)">10 Marks (Full Engineering Answer + Diagram)</button>
-                    <button type="button" class="mark-btn" data-marks="15" onclick="selectMarks(15)">15 Marks (Comprehensive Analysis + Working)</button>
+                    <button type="button" class="mark-btn" data-marks="2" onclick="selectMarks(2)">2 Marks (Precise
+                        Definition & Key Formula)</button>
+                    <button type="button" class="mark-btn" data-marks="5" onclick="selectMarks(5)">5 Marks (Concept +
+                        Architecture + Example)</button>
+                    <button type="button" class="mark-btn active" data-marks="10" onclick="selectMarks(10)">10 Marks
+                        (Full Engineering Answer + Diagram)</button>
+                    <button type="button" class="mark-btn" data-marks="15" onclick="selectMarks(15)">15 Marks
+                        (Comprehensive Analysis + Working)</button>
                 </div>
             </div>
 
             <div style="margin-bottom: 18px;">
                 <label style="font-weight: 900; font-size: 14px; display: block; margin-bottom: 6px;">SUBJECT:</label>
-                <input type="text" id="subject-input" class="input-text" value="Operating Systems" style="width: 100%; border: 3px solid var(--black); padding: 12px; font-weight: 700; font-size: 15px;">
+                <input type="text" id="subject-input" class="input-text" value="Operating Systems"
+                    style="width: 100%; border: 3px solid var(--black); padding: 12px; font-weight: 700; font-size: 15px;">
             </div>
 
             <div style="margin-bottom: 22px;">
-                <label style="font-weight: 900; font-size: 14px; display: block; margin-bottom: 6px;">EXAM QUESTION:</label>
-                <textarea id="question-input" rows="3" style="width: 100%; border: 3px solid var(--black); padding: 14px; font-weight: 600; font-size: 15px; resize: vertical;" placeholder="e.g. Explain paging hardware with TLB. How does it eliminate external fragmentation?">Explain paging mechanism in detail with hardware diagram, address translation architecture, advantages, and limitations.</textarea>
+                <label style="font-weight: 900; font-size: 14px; display: block; margin-bottom: 6px;">EXAM
+                    QUESTION:</label>
+                <textarea id="question-input" rows="3"
+                    style="width: 100%; border: 3px solid var(--black); padding: 14px; font-weight: 600; font-size: 15px; resize: vertical;"
+                    placeholder="e.g. Explain paging hardware with TLB. How does it eliminate external fragmentation?">Explain paging mechanism in detail with hardware diagram, address translation architecture, advantages, and limitations.</textarea>
             </div>
 
-            <button id="generate-btn" class="comic-button red" style="font-size: 17px; padding: 14px 28px;" onclick="generateModelAnswer()">
+            <button id="generate-btn" class="comic-button red" style="font-size: 17px; padding: 14px 28px;"
+                onclick="generateModelAnswer()">
                 GENERATE EXAM-READY ANSWER 💥
             </button>
         </div>
 
         <!-- ANSWER DISPLAY CARD -->
         <div id="result-card" class="comic-card" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--black); padding-bottom: 12px; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--black); padding-bottom: 12px; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
                 <div>
-                    <span id="result-marks-badge" class="badge" style="background: var(--blue); color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">10 MARKS TEMPLATE</span>
+                    <span id="result-marks-badge" class="badge"
+                        style="background: var(--blue); color: white; padding: 4px 10px; border: 2px solid var(--black); font-weight: 900;">10
+                        MARKS TEMPLATE</span>
                     <h2 style="font-size: 24px; font-weight: 900; margin: 8px 0 0;">MODEL UNIVERSITY ANSWER</h2>
                 </div>
                 <div class="action-row" style="margin-top: 0;">
-                    <button class="comic-button yellow" onclick="copyAnswer()" style="font-size: 13px; padding: 8px 16px;">
+                    <button class="comic-button yellow" onclick="copyAnswer()"
+                        style="font-size: 13px; padding: 8px 16px;">
                         📋 COPY ANSWER
                     </button>
-                    <button class="comic-button" style="background: #e0f2fe; border: 3px solid var(--black); font-size: 13px; padding: 8px 16px;" onclick="downloadAnswer()">
+                    <button class="comic-button"
+                        style="background: #e0f2fe; border: 3px solid var(--black); font-size: 13px; padding: 8px 16px;"
+                        onclick="downloadAnswer()">
                         💾 DOWNLOAD (.TXT)
                     </button>
                 </div>
             </div>
 
-            <div id="answer-box" class="answer-content">Generating model answer grounded in syllabus and verified RAG sources...</div>
+            <div id="answer-box" class="answer-content">Generating model answer grounded in syllabus and verified RAG
+                sources...</div>
         </div>
     </div>
 
@@ -216,4 +244,5 @@
         }
     </script>
 </body>
+
 </html>

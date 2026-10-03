@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,14 @@
     <!-- Modern Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap"
+        rel="stylesheet">
     <!-- Main Style Sheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
     <header class="navbar">
         <a href="/" class="logo">
@@ -27,7 +31,8 @@
             <a href="/answer-mode">EXAM ANSWERS</a>
             <a href="/dashboard#cooked" style="color: var(--golden-yellow); font-weight: 800;">🚨 I'M COOKED</a>
         </nav>
-        <a href="/onboarding" class="comic-button yellow" style="padding: 6px 14px; font-size: 12px; text-decoration: none;">
+        <a href="/onboarding" class="comic-button yellow"
+            style="padding: 6px 14px; font-size: 12px; text-decoration: none;">
             + SETUP EXAM
         </a>
     </header>
@@ -48,4 +53,5 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>
