@@ -3,320 +3,681 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abhyas AI | Setup Your Exam Intelligence</title>
+    <title>AbhyasAI | Build Your Study Space</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        .onboarding-container {
-            max-width: 950px;
+        .onboarding-wrap {
+            max-width: 900px;
             margin: 40px auto;
             padding: 0 20px 80px;
         }
-        .form-box {
+        .space-card {
             background: var(--white);
-            border: 4px solid var(--black);
-            box-shadow: 6px 6px 0px var(--black);
-            padding: 28px;
+            border: var(--border-thick);
+            box-shadow: var(--shadow-xl);
+            border-radius: 12px;
+            padding: 36px 32px;
+            margin-top: 24px;
+        }
+        .header-badge {
+            display: inline-block;
+            background: var(--golden-yellow);
+            color: var(--charcoal);
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 12px;
+            padding: 4px 14px;
+            border: var(--border-thin);
+            box-shadow: 2px 2px 0 var(--charcoal);
+            border-radius: 6px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .session-input-wrap {
+            margin-bottom: 28px;
+        }
+        .session-input-wrap label {
+            display: block;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 15px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .session-input {
+            width: 100%;
+            padding: 14px 16px;
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 17px;
+            border: var(--border-med);
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: #FFFDF8;
+        }
+        .session-input:focus {
+            outline: none;
+            border-color: var(--cobalt-blue);
+            box-shadow: 3px 3px 0 var(--cobalt-blue);
+        }
+        /* DROP ZONE */
+        .dropzone-box {
+            border: 3px dashed var(--charcoal);
+            background: #FAF7F0;
+            border-radius: 10px;
+            padding: 36px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .dropzone-box.dragover {
+            background: #FFF8D6;
+            border-color: var(--cobalt-blue);
+            transform: scale(1.01);
+        }
+        .dropzone-box.disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            background: #EAE6DA;
+        }
+        .counter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--charcoal);
+            color: white;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 13px;
+            border-radius: 20px;
+            margin-bottom: 14px;
+        }
+        .counter-badge.full {
+            background: var(--coral);
+        }
+        /* FILE CARDS GRID */
+        .file-cards-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
             margin-top: 20px;
         }
-        .file-drop-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 16px;
-            margin-top: 12px;
-        }
-        .input-group {
-            border: 2px solid var(--black);
-            background: #fffdf2;
-            padding: 14px;
-        }
-        .timeline-step {
+        .file-card {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border: 2px solid var(--black);
-            margin-bottom: 8px;
-            background: var(--white);
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: white;
+            border: var(--border-med);
+            box-shadow: var(--shadow-sm);
+            border-radius: 8px;
+            transition: transform 0.15s ease;
+        }
+        .file-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: var(--shadow-md);
+        }
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            overflow: hidden;
+        }
+        .file-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+        .file-details {
+            overflow: hidden;
+        }
+        .file-name {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 15px;
+            color: var(--charcoal);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 480px;
+        }
+        .file-meta {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted-gray);
+            margin-top: 2px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .file-status-pill {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            border: 1px solid var(--charcoal);
+        }
+        .status-ready { background: #E8F8F5; color: #0E7060; }
+        .status-error { background: #FFEBEB; color: var(--red); }
+        .remove-file-btn {
+            background: none;
+            border: 2px solid var(--charcoal);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 12px;
+            color: var(--coral);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .remove-file-btn:hover {
+            background: var(--coral);
+            color: white;
+        }
+        .submit-space-btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 28px;
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 18px;
+            border: var(--border-thick);
+            border-radius: 8px;
+            background: var(--golden-yellow);
+            color: var(--charcoal);
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.15s;
+        }
+        .submit-space-btn:hover:not(:disabled) {
+            transform: translate(-2px, -2px);
+            box-shadow: var(--shadow-xl);
+            background: #FFE043;
+        }
+        .submit-space-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        /* PROCESSING TIMELINE */
+        .proc-box {
+            display: none;
+            background: white;
+            border: var(--border-thick);
+            box-shadow: var(--shadow-xl);
+            border-radius: 12px;
+            padding: 36px 30px;
+            margin-top: 24px;
+        }
+        .proc-step {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border: var(--border-thin);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #FAF7F0;
+            font-family: var(--font-display);
             font-weight: 800;
             font-size: 14px;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
         }
-        .timeline-step.pending { opacity: 0.45; }
-        .timeline-step.active {
-            background: var(--yellow);
-            border-left: 8px solid var(--black);
-            opacity: 1;
+        .proc-step.active {
+            background: #FFF8D6;
+            border-color: var(--charcoal);
+            box-shadow: 3px 3px 0 var(--charcoal);
             transform: translateX(4px);
         }
-        .timeline-step.done {
-            background: #e8f5e9;
-            color: #2e7d32;
-            opacity: 1;
+        .proc-step.done {
+            background: #E8F8F5;
+            color: #0E7060;
+            border-color: #0E7060;
         }
-        .step-icon {
-            font-size: 18px;
+        .proc-step.error {
+            background: #FFEBEB;
+            color: var(--red);
+            border-color: var(--red);
+        }
+        .step-circle {
             width: 28px;
             height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--charcoal);
+            background: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            border: 2px solid var(--black);
-            background: white;
+            font-size: 13px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .proc-step.done .step-circle {
+            background: var(--mint);
+            color: var(--charcoal);
         }
     </style>
 </head>
-<body>
+<body style="background: var(--cream); min-height: 100vh;">
 
     <!-- NAVBAR -->
-    <header class="navbar">
-        <a href="/" class="logo" style="text-decoration: none; color: white;">
-            ABHYAS<span>AI</span>
+    <header class="navbar" style="background: var(--charcoal); padding: 14px 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid var(--black);">
+        <a href="/" class="logo" style="text-decoration: none; color: white; font-family: var(--font-logo); font-size: 24px;">
+            ABHYAS<span style="color: var(--golden-yellow);">AI</span>
         </a>
-        <nav class="nav-links">
-            <a href="/dashboard">DASHBOARD</a>
-            <a href="/onboarding" style="color: var(--yellow);">UPLOAD MATERIALS</a>
-            <a href="/learn">LEARN LAB</a>
-            <a href="/exam">EXAM PREP</a>
-            
-        </nav>
-        <a href="/dashboard" class="comic-button yellow" style="padding: 6px 12px; font-size: 13px; text-decoration: none;">
-            VIEW DASHBOARD →
-        </a>
+        <div style="display: flex; gap: 14px; align-items: center;">
+            <a href="/dashboard" class="comic-button yellow" style="padding: 6px 14px; font-size: 13px; text-decoration: none;">
+                VIEW DASHBOARD →
+            </a>
+            <button onclick="handleLogout()" class="comic-button" style="padding: 6px 12px; font-size: 12px; background: #333; color: white; border: 2px solid white; cursor: pointer;">
+                LOGOUT
+            </button>
+        </div>
     </header>
 
-    <div class="onboarding-container">
+    <div class="onboarding-wrap">
         
-        <div id="upload-stage">
-            <div style="text-align: center; margin-bottom: 25px;">
-                <span class="comic-button red" style="pointer-events: none; padding: 4px 14px; font-size: 12px;">
-                    STUDY WHAT MATTERS NEXT 💥
-                </span>
-                <h1 style="font-size: 34px; font-weight: 900; margin: 12px 0 6px;">
-                    CONNECT YOUR EXAM MATERIALS
+        <!-- CREATION FORM STAGE -->
+        <div id="form-stage" class="space-card">
+            <div style="text-align: center; margin-bottom: 28px;">
+                <span class="header-badge">PERSONAL KNOWLEDGE SPACE BUILDER</span>
+                <h1 style="font-family: var(--font-display); font-size: 32px; font-weight: 900; margin: 4px 0 8px;">
+                    Welcome to AbhyasAI
                 </h1>
-                <p style="font-size: 16px; color: #555; max-width: 600px; margin: 0 auto; font-weight: 600;">
-                    Upload your official university syllabus, 1 to 3 previous year papers (PYQs), and lecture notes. Abhyas AI will extract concepts, compute historical relevance, and generate your personal dashboard.
+                <p style="font-size: 16px; color: #555; font-weight: 600; margin: 0 auto; max-width: 620px;">
+                    Build your personal study intelligence space. Upload up to 3 study files (syllabus, past questions, slides, notes, or diagrams) to index your private Chroma Cloud knowledge base.
                 </p>
             </div>
 
-            <form id="onboarding-form" enctype="multipart/form-data" class="form-box">
-                <!-- SUBJECT NAME -->
-                <div style="margin-bottom: 20px;">
-                    <label style="font-weight: 900; font-size: 15px; display: block; margin-bottom: 6px;">
-                        1. SUBJECT NAME:
+            <!-- 1. SESSION / SUBJECT NAME -->
+            <div class="session-input-wrap">
+                <label for="session-name">Subject / Study Session Name</label>
+                <input type="text" id="session-name" class="session-input" placeholder="e.g. Operating Systems, DBMS, Semester 5 OS, GATE OS Preparation..." value="Operating Systems" required>
+                <div style="font-size: 12px; font-weight: 700; color: #777; margin-top: 4px;">
+                    Enter any academic subject or exam prep space. You can return to this space anytime.
+                </div>
+            </div>
+
+            <!-- 2. MULTI-FILE UPLOAD ZONE -->
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="font-family: var(--font-display); font-weight: 800; font-size: 15px; text-transform: uppercase;">
+                        Upload Study Files
                     </label>
-                    <input type="text" name="subject" value="Operating Systems" required style="width: 100%; padding: 12px; border: 3px solid var(--black); font-weight: 700; font-size: 15px; box-sizing: border-box;">
+                    <div id="file-counter" class="counter-badge">0 / 3 files</div>
                 </div>
 
-                <!-- SYLLABUS -->
-                <div style="margin-bottom: 20px;">
-                    <label style="font-weight: 900; font-size: 15px; display: block; margin-bottom: 6px;">
-                        2. UNIVERSITY SYLLABUS (PDF / TXT / MD):
-                    </label>
-                    <div class="input-group">
-                        <input type="file" name="syllabus_file" accept=".pdf,.txt,.md,.docx" style="width: 100%; font-weight: 700;">
-                        <div style="text-align: center; margin: 8px 0; font-weight: 800; font-size: 12px; color: #666;">— OR PASTE SYLLABUS TEXT —</div>
-                        <textarea name="syllabus_text" rows="3" placeholder="Module 1: Process Management... Module 2: Memory Management..." style="width: 100%; padding: 10px; border: 2px solid var(--black); font-family: inherit; font-weight: 600; box-sizing: border-box;"></textarea>
+                <div id="dropzone" class="dropzone-box" onclick="triggerFileInput()">
+                    <input type="file" id="file-input" multiple style="display: none;" onchange="handleFileSelect(event)" accept=".pdf,.doc,.docx,.txt,.md,.rtf,.ppt,.pptx,.csv,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.bmp,.tiff">
+                    <div style="font-size: 40px; margin-bottom: 10px;">📂</div>
+                    <div style="font-family: var(--font-display); font-weight: 800; font-size: 17px; margin-bottom: 6px;">
+                        Drop up to 3 study files here or <span style="color: var(--cobalt-blue); text-decoration: underline;">Browse Files</span>
+                    </div>
+                    <div style="font-size: 13px; font-weight: 700; color: #666; max-width: 500px; margin: 0 auto;">
+                        PDF • Word (.docx) • PowerPoint (.pptx) • Excel (.xlsx/.csv) • Images • Markdown • Text
+                        <br><span style="font-size: 11px; color: #888;">Max 25 MB per file. Up to 3 files per session.</span>
                     </div>
                 </div>
 
-                <!-- PYQS -->
-                <div style="margin-bottom: 20px;">
-                    <label style="font-weight: 900; font-size: 15px; display: block; margin-bottom: 6px;">
-                        3. PREVIOUS YEAR QUESTION PAPERS (Upload 1 to 3 Papers):
-                    </label>
-                    <div class="file-drop-grid">
-                        <div class="input-group">
-                            <span style="font-weight: 800; font-size: 13px; display: block; margin-bottom: 4px;">PYQ Paper 1 (Required):</span>
-                            <input type="file" name="pyq1" accept=".pdf,.txt,.md,.docx" required style="width: 100%;">
-                        </div>
-                        <div class="input-group">
-                            <span style="font-weight: 800; font-size: 13px; display: block; margin-bottom: 4px;">PYQ Paper 2 (Optional):</span>
-                            <input type="file" name="pyq2" accept=".pdf,.txt,.md,.docx" style="width: 100%;">
-                        </div>
-                        <div class="input-group">
-                            <span style="font-weight: 800; font-size: 13px; display: block; margin-bottom: 4px;">PYQ Paper 3 (Optional):</span>
-                            <input type="file" name="pyq3" accept=".pdf,.txt,.md,.docx" style="width: 100%;">
-                        </div>
-                    </div>
-                </div>
+                <!-- SELECTED FILES CARD CONTAINER -->
+                <div id="file-cards-list" class="file-cards-grid"></div>
 
-                <!-- OPTIONAL NOTES -->
-                <div style="margin-bottom: 25px;">
-                    <label style="font-weight: 900; font-size: 15px; display: block; margin-bottom: 6px;">
-                        4. CLASS NOTES / LECTURE SLIDES (Optional PDF/DOCX/PPTX):
-                    </label>
-                    <div class="input-group">
-                        <input type="file" name="notes_file" accept=".pdf,.txt,.md,.docx,.pptx" style="width: 100%;">
-                    </div>
-                </div>
+                <div id="file-alert" style="display: none; margin-top: 12px; padding: 10px 14px; background: #FFEBEB; border: 2px solid var(--coral); border-radius: 6px; font-weight: 800; font-size: 13px; color: var(--red);"></div>
+            </div>
 
-                <button type="submit" class="comic-button red" style="width: 100%; font-size: 18px; padding: 16px;">
-                    PROCESS EXAM INTELLIGENCE & BUILD DASHBOARD 💥
-                </button>
-            </form>
+            <!-- SUBMIT BUTTON -->
+            <button type="button" id="submit-btn" class="submit-space-btn" onclick="submitStudySpace()" disabled>
+                CREATE STUDY SPACE 💥
+            </button>
         </div>
 
-        <!-- PROCESSING TIMELINE STAGE -->
-        <div id="processing-stage" style="display: none;">
-            <div class="form-box">
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <span class="status-badge status-yellow" id="stage-badge">PROCESSING IN PROGRESS</span>
-                    <h2 style="font-size: 28px; font-weight: 900; margin: 10px 0;">
-                        BUILDING YOUR EXAM INTELLIGENCE...
-                    </h2>
-                    <p style="font-size: 14px; font-weight: 600; color: #555;">
-                        Real-time execution: parsing documents, indexing into Chroma Cloud (hybrid vectors), and ranking historical topics.
-                    </p>
-                </div>
+        <!-- REAL BACKEND PROCESSING STAGE -->
+        <div id="processing-stage" class="proc-box">
+            <div style="text-align: center; margin-bottom: 26px;">
+                <span class="badge-pill badge-strong" id="proc-badge">INDEXING STUDY KNOWLEDGE</span>
+                <h2 style="font-family: var(--font-display); font-size: 26px; font-weight: 900; margin: 10px 0 4px;">
+                    Creating your study space...
+                </h2>
+                <p id="proc-subtext" style="font-size: 14px; font-weight: 600; color: #555;">
+                    Executing universal extraction, structure-aware chunking, and Chroma Cloud vector indexing.
+                </p>
+            </div>
 
-                <div id="timeline-list">
-                    <div class="timeline-step active" id="step-1">
-                        <span class="step-icon">1</span>
-                        <span>Reading and sanitizing uploaded documents...</span>
-                    </div>
-                    <div class="timeline-step pending" id="step-2">
-                        <span class="step-icon">2</span>
-                        <span>Extracting syllabus modules, topics, and subtopics...</span>
-                    </div>
-                    <div class="timeline-step pending" id="step-3">
-                        <span class="step-icon">3</span>
-                        <span>Parsing uploaded past year exam papers & question marks...</span>
-                    </div>
-                    <div class="timeline-step pending" id="step-4">
-                        <span class="step-icon">4</span>
-                        <span>Computing historical topic relevance scores & recency...</span>
-                    </div>
-                    <div class="timeline-step pending" id="step-5">
-                        <span class="step-icon">5</span>
-                        <span>Performing structure-aware chunking & ChromaDB vector indexing...</span>
-                    </div>
-                    <div class="timeline-step pending" id="step-6">
-                        <span class="step-icon">6</span>
-                        <span>Synthesizing curriculum concept graph & prerequisite nodes...</span>
-                    </div>
-                    <div class="timeline-step pending" id="step-7">
-                        <span class="step-icon">7</span>
-                        <span>Calculating baseline student readiness & What Should I Study Now...</span>
-                    </div>
+            <div id="timeline">
+                <div class="proc-step" id="step-validate">
+                    <div class="step-circle" id="circle-validate">1</div>
+                    <div class="step-text">Files validated & safety checked</div>
                 </div>
+                <div class="proc-step" id="step-extract">
+                    <div class="step-circle" id="circle-extract">2</div>
+                    <div class="step-text">Documents extracted (PDF, Word, Slides, Vision OCR)</div>
+                </div>
+                <div class="proc-step" id="step-normalize">
+                    <div class="step-circle" id="circle-normalize">3</div>
+                    <div class="step-text">Content normalized & cleaned</div>
+                </div>
+                <div class="proc-step" id="step-chunk">
+                    <div class="step-circle" id="circle-chunk">4</div>
+                    <div class="step-text">Structure-aware chunks created</div>
+                </div>
+                <div class="proc-step" id="step-embed">
+                    <div class="step-circle" id="circle-embed">5</div>
+                    <div class="step-text">Chroma Cloud knowledge base indexed (Qwen + SPLADE hybrid)</div>
+                </div>
+                <div class="proc-step" id="step-ready">
+                    <div class="step-circle" id="circle-ready">6</div>
+                    <div class="step-text">Study space ready & metadata committed to Supabase</div>
+                </div>
+            </div>
 
-                <div id="ready-banner" style="display: none; margin-top: 25px; text-align: center; background: #e8f5e9; border: 3px solid var(--black); padding: 20px;">
-                    <h3 style="margin: 0 0 8px; color: #2e7d32; font-size: 22px;">EXAM INTELLIGENCE SYSTEM READY! 🚀</h3>
-                    <p style="font-weight: 700; margin-bottom: 15px;">All documents indexed into RAG. Historical question patterns and concept maps are live.</p>
-                    <a id="dashboard-link" href="/dashboard" class="comic-button yellow" style="font-size: 18px; padding: 14px 28px; text-decoration: none;">
-                        LAUNCH YOUR PERSONALIZED DASHBOARD 💥
-                    </a>
-                </div>
+            <!-- SUCCESS COMPLETION BANNER -->
+            <div id="ready-card" style="display: none; margin-top: 24px; text-align: center; background: #E8F8F5; border: 3px solid var(--charcoal); border-radius: 10px; padding: 24px;">
+                <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 900; color: #0E7060; margin: 0 0 6px;">
+                    STUDY SPACE READY! 🚀
+                </h3>
+                <p id="ready-summary" style="font-weight: 700; color: #333; margin-bottom: 18px;"></p>
+                <button onclick="launchDashboard()" class="comic-button yellow" style="font-size: 16px; padding: 12px 28px; cursor: pointer; text-decoration: none;">
+                    OPEN DASHBOARD & START CHATTING →
+                </button>
+            </div>
+
+            <!-- ERROR SUMMARY BANNER -->
+            <div id="error-card" style="display: none; margin-top: 24px; background: #FFEBEB; border: 3px solid var(--coral); border-radius: 10px; padding: 20px;">
+                <h4 style="font-family: var(--font-display); color: var(--red); font-size: 18px; margin: 0 0 8px;">
+                    ⚠️ Ingestion Notice
+                </h4>
+                <div id="error-details" style="font-weight: 600; font-size: 14px; color: #333;"></div>
+                <button onclick="resetUpload()" class="comic-button red" style="margin-top: 14px; padding: 8px 18px; font-size: 13px;">
+                    RETURN TO UPLOAD
+                </button>
             </div>
         </div>
 
     </div>
 
     <script>
-        const form = document.getElementById("onboarding-form");
-        const uploadStage = document.getElementById("upload-stage");
-        const procStage = document.getElementById("processing-stage");
-        const readyBanner = document.getElementById("ready-banner");
+        const MAX_FILES = 3;
+        const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
+        let selectedFiles = [];
+        let createdSessionId = null;
 
-        form.addEventListener("submit", async function(e) {
-            e.preventDefault();
-            uploadStage.style.display = "none";
+        // Supported extensions
+        const EXT_ICONS = {
+            ".pdf": "📄",
+            ".doc": "📘", ".docx": "📘",
+            ".ppt": "📊", ".pptx": "📊",
+            ".csv": "📈", ".xls": "📈", ".xlsx": "📈",
+            ".png": "🖼️", ".jpg": "🖼️", ".jpeg": "🖼️", ".webp": "🖼️", ".bmp": "🖼️", ".tiff": "🖼️",
+            ".txt": "📝", ".md": "📝", ".rtf": "📝"
+        };
+
+        function triggerFileInput() {
+            if (selectedFiles.length >= MAX_FILES) {
+                showFileAlert("Maximum 3 files per session. Remove a file to upload another.");
+                return;
+            }
+            document.getElementById("file-input").click();
+        }
+
+        // Drag & Drop Handlers
+        const dropzone = document.getElementById("dropzone");
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (selectedFiles.length < MAX_FILES) {
+                    dropzone.classList.add('dragover');
+                }
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        });
+
+        function handleFileSelect(e) {
+            handleFiles(e.target.files);
+            e.target.value = ""; // Reset input so re-selecting same file triggers change
+        }
+
+        function handleFiles(files) {
+            hideFileAlert();
+            if (!files || files.length === 0) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (selectedFiles.length >= MAX_FILES) {
+                    showFileAlert("Maximum 3 files per session. Extra files were ignored.");
+                    break;
+                }
+
+                // Check duplicate
+                if (selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                    continue;
+                }
+
+                // Validation
+                const ext = getExtension(file.name);
+                if (!EXT_ICONS[ext]) {
+                    showFileAlert(`Unsupported format: '${ext || file.name}'.`);
+                    continue;
+                }
+
+                if (file.size > MAX_FILE_SIZE) {
+                    showFileAlert(`File '${file.name}' exceeds the 25 MB size limit.`);
+                    continue;
+                }
+
+                if (file.size === 0) {
+                    showFileAlert(`File '${file.name}' is empty.`);
+                    continue;
+                }
+
+                selectedFiles.push(file);
+            }
+
+            renderFileCards();
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            hideFileAlert();
+            renderFileCards();
+        }
+
+        function renderFileCards() {
+            const container = document.getElementById("file-cards-list");
+            const counter = document.getElementById("file-counter");
+            const submitBtn = document.getElementById("submit-btn");
+
+            container.innerHTML = "";
+            counter.textContent = `${selectedFiles.length} / ${MAX_FILES} files`;
+
+            if (selectedFiles.length >= MAX_FILES) {
+                counter.classList.add("full");
+                dropzone.classList.add("disabled");
+            } else {
+                counter.classList.remove("full");
+                dropzone.classList.remove("disabled");
+            }
+
+            selectedFiles.forEach((file, idx) => {
+                const ext = getExtension(file.name);
+                const icon = EXT_ICONS[ext] || "📄";
+                const sizeStr = formatBytes(file.size);
+
+                const card = document.createElement("div");
+                card.className = "file-card";
+                card.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">${icon}</div>
+                        <div class="file-details">
+                            <div class="file-name" title="${file.name}">${file.name}</div>
+                            <div class="file-meta">
+                                <span>${ext.replace('.', '').toUpperCase()} • ${sizeStr}</span>
+                                <span class="file-status-pill status-ready">✓ Ready</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="remove-file-btn" onclick="removeFile(${idx})">
+                        Remove
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+
+            submitBtn.disabled = selectedFiles.length === 0;
+        }
+
+        function getExtension(filename) {
+            const idx = filename.lastIndexOf(".");
+            return idx !== -1 ? filename.slice(idx).toLowerCase() : "";
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return "0 Bytes";
+            const k = 1024;
+            const sizes = ["Bytes", "KB", "MB", "GB"];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+        }
+
+        function showFileAlert(msg) {
+            const el = document.getElementById("file-alert");
+            el.textContent = msg;
+            el.style.display = "block";
+        }
+
+        function hideFileAlert() {
+            document.getElementById("file-alert").style.display = "none";
+        }
+
+        function updateTimelineStep(stepId, state) {
+            const stepEl = document.getElementById(`step-${stepId}`);
+            const circle = document.getElementById(`circle-${stepId}`);
+            if (!stepEl) return;
+
+            stepEl.className = `proc-step ${state}`;
+            if (state === "done") {
+                circle.textContent = "✓";
+            }
+        }
+
+        async function submitStudySpace() {
+            const sessionName = document.getElementById("session-name").value.trim() || "Operating Systems";
+            if (selectedFiles.length === 0) {
+                showFileAlert("Please upload at least 1 study file.");
+                return;
+            }
+
+            const token = localStorage.getItem("abhyas_auth_token") || "demo_token";
+            const formStage = document.getElementById("form-stage");
+            const procStage = document.getElementById("processing-stage");
+
+            formStage.style.display = "none";
             procStage.style.display = "block";
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            const formData = new FormData(form);
+            // Step 1: File validation
+            updateTimelineStep("validate", "active");
 
             try {
-                // Step 1: Read files
-                updateStep(1, "active");
-                await delay(200);
-                updateStep(1, "done");
-
-                // Step 2: Extracting syllabus — fires off real API
-                updateStep(2, "active");
-
-                const fetchPromise = fetch("/api/process-materials", {
+                // Create Study Session on Backend
+                const sessionRes = await fetch("/api/study-sessions", {
                     method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name: sessionName })
+                });
+
+                const sessionData = await sessionRes.json();
+                if (!sessionData.success) {
+                    throw new Error(sessionData.error?.message || "Failed to create study session.");
+                }
+
+                createdSessionId = sessionData.data.id;
+                updateTimelineStep("validate", "done");
+
+                // Step 2 & 3: Extraction & Ingestion
+                updateTimelineStep("extract", "active");
+                updateTimelineStep("normalize", "active");
+
+                const formData = new FormData();
+                formData.append("session_name", sessionName);
+                selectedFiles.forEach((file) => {
+                    formData.append("files", file);
+                });
+
+                // Ingest files via real endpoint
+                const uploadRes = await fetch(`/api/study-sessions/${createdSessionId}/documents`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    },
                     body: formData
                 });
 
-                // Move timeline immediately; do not add artificial waiting.
-                await delay(200);
-                updateStep(2, "done");
-                updateStep(3, "active");
-
-                // Now actually wait for the API to resolve
-                const res = await fetchPromise;
-                const data = await res.json();
-
-                if (!data.success) {
-                    alert("Processing notice: " + (data.error || "Failed to process materials."));
-                    location.reload();
-                    return;
+                const uploadData = await uploadRes.json();
+                if (!uploadData.success) {
+                    throw new Error(uploadData.error?.message || "Document indexing failed.");
                 }
 
-                updateStep(3, "done");
-                updateStep(4, "active");
-                await delay(120);
-                updateStep(4, "done");
-                updateStep(5, "active");
-                await delay(120);
-                updateStep(5, "done");
+                updateTimelineStep("extract", "done");
+                updateTimelineStep("normalize", "done");
+                updateTimelineStep("chunk", "done");
+                updateTimelineStep("embed", "done");
+                updateTimelineStep("ready", "done");
 
-                updateStep(6, "active");
-                await delay(120);
-                updateStep(6, "done");
+                // Real completion
+                const resData = uploadData.data;
+                const readyCard = document.getElementById("ready-card");
+                const summaryText = document.getElementById("ready-summary");
 
-                updateStep(7, "active");
-                await delay(120);
-                updateStep(7, "done");
+                summaryText.textContent = `Indexed ${resData.successful_files} of ${resData.total_files} file(s) into Chroma Cloud (${resData.total_chunks_indexed} semantic chunks).`;
+                readyCard.style.display = "block";
 
-                document.getElementById("stage-badge").className = "status-badge status-green";
-                document.getElementById("stage-badge").textContent = "PROCESSING COMPLETED";
-                const elapsed = data.data && data.data.processing_seconds;
-                if (elapsed) {
-                    document.querySelector("#stage-badge").title = `Completed in ${elapsed}s`;
-                }
-                const dashboardLink = document.getElementById("dashboard-link");
-                if (dashboardLink && data.data && data.data.subject) {
-                    dashboardLink.href = `/dashboard?subject=${encodeURIComponent(data.data.subject)}`;
-                    localStorage.setItem("abhyas_subject", data.data.subject);
-                }
-
-                const warnings = (data.data && data.data.rag_indexing && data.data.rag_indexing.warnings) || [];
-                if (warnings.length > 0) {
-                    alert(
-                        "Materials processed with partial indexing.\n\n" +
-                        "Dashboard personalization is available, but cloud RAG indexing had warnings:\n- " +
-                        warnings.join("\n- ")
-                    );
-                }
-
-                readyBanner.style.display = "block";
-                readyBanner.scrollIntoView({ behavior: 'smooth' });
+                // Save selected space to localStorage
+                localStorage.setItem("abhyas_current_session_id", createdSessionId);
+                localStorage.setItem("abhyas_current_session_name", sessionName);
 
             } catch (err) {
                 console.error(err);
-                alert("Something went wrong during ingestion: " + err);
-                location.reload();
+                const errCard = document.getElementById("error-card");
+                const errDetails = document.getElementById("error-details");
+                errDetails.textContent = err.message || "An error occurred during indexing.";
+                errCard.style.display = "block";
             }
-        });
-
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        function updateStep(stepNum, status) {
-            const stepEl = document.getElementById(`step-${stepNum}`);
-            if (!stepEl) return;
-            stepEl.className = `timeline-step ${status}`;
-            if (status === "done") {
-                stepEl.querySelector(".step-icon").innerHTML = "\u2713";
-                stepEl.querySelector(".step-icon").style.background = "#4caf50";
-                stepEl.querySelector(".step-icon").style.color = "white";
-            }
+        function launchDashboard() {
+            const sessionName = document.getElementById("session-name").value.trim() || "Operating Systems";
+            window.location.href = `/dashboard?session_id=${encodeURIComponent(createdSessionId)}&subject=${encodeURIComponent(sessionName)}`;
+        }
+
+        function resetUpload() {
+            document.getElementById("form-stage").style.display = "block";
+            document.getElementById("processing-stage").style.display = "none";
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("abhyas_auth_token");
+            localStorage.removeItem("abhyas_user_id");
+            window.location.href = "/login";
         }
     </script>
 </body>

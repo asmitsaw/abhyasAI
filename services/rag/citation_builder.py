@@ -11,7 +11,10 @@ class Citation:
         page: str = "",
         question_number: str = "",
         year: str = "",
-        marks: str = ""
+        marks: str = "",
+        slide: str = "",
+        sheet: str = "",
+        snippet: str = ""
     ):
         self.citation_id = citation_id
         self.source_name = source_name
@@ -21,6 +24,9 @@ class Citation:
         self.question_number = question_number
         self.year = year
         self.marks = marks
+        self.slide = slide
+        self.sheet = sheet
+        self.snippet = snippet
 
     def format_inline(self) -> str:
         return f"[{self.citation_id}]"
@@ -33,6 +39,10 @@ class Citation:
             details.append(self.question_number)
         if self.marks:
             details.append(f"{self.marks}M")
+        if self.slide:
+            details.append(f"Slide {self.slide}")
+        if self.sheet:
+            details.append(f"Sheet {self.sheet}")
         if self.page and self.page != "1":
             details.append(f"p. {self.page}")
         if self.section and not self.question_number:
@@ -48,9 +58,12 @@ class Citation:
             "document_type": self.document_type,
             "section": self.section,
             "page": self.page,
+            "slide": self.slide,
+            "sheet": self.sheet,
             "question_number": self.question_number,
             "year": self.year,
             "marks": self.marks,
+            "snippet": self.snippet,
             "label": self.format_reference()
         }
 
@@ -64,14 +77,20 @@ class CitationBuilder:
         citations = []
         for i, chunk in enumerate(chunks, 1):
             meta = chunk.get("metadata", {})
+            text = chunk.get("text", "")
+            snippet = meta.get("snippet") or (text[:300].replace("\n", " ") if text else "")
+
             citations.append(Citation(
                 citation_id=i,
-                source_name=meta.get("source_name", "Uploaded Document"),
-                document_type=meta.get("document_type", "document"),
+                source_name=meta.get("source_name") or meta.get("filename") or "Uploaded Document",
+                document_type=meta.get("document_type") or meta.get("source_type") or "document",
                 section=meta.get("section", ""),
                 page=str(meta.get("page", "")),
+                slide=str(meta.get("slide", "")),
+                sheet=str(meta.get("sheet", "")),
                 question_number=meta.get("question_number", ""),
                 year=str(meta.get("year", "")),
-                marks=str(meta.get("marks", ""))
+                marks=str(meta.get("marks", "")),
+                snippet=snippet
             ))
         return citations

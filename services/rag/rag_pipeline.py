@@ -30,15 +30,19 @@ class RAGPipeline:
         module: Optional[str] = None,
         document_type: Optional[str] = None,
         top_k: int = 5,
-        use_reasoning: bool = False
+        use_reasoning: bool = False,
+        user_id: Optional[str] = None,
+        session_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        # 1. Retrieve & Rerank Chunks
+        # 1. Retrieve & Rerank Chunks (with strict multi-tenant isolation)
         retrieval_res = self.retriever.retrieve(
             query=question,
             subject=subject,
             module=module,
             document_type=document_type,
-            top_k=top_k
+            top_k=top_k,
+            user_id=user_id,
+            session_id=session_id,
         )
         chunks = retrieval_res.get("chunks", [])
         query_type = retrieval_res.get("query_type", "GENERAL_TUTOR")
@@ -61,12 +65,20 @@ class RAGPipeline:
 
         # 4. Generate with LLM Provider
         provider = get_llm_provider()
-        answer = provider.generate(
-            prompt=prompt,
-            system_instruction=sys_instruction,
-            temperature=0.3,
-            use_reasoning=use_reasoning
-        )
+        try:
+            answer = provider.generate(
+                prompt=prompt,
+                system_instruction=sys_instruction,
+                temperature=0.3,
+                use_reasoning=use_reasoning
+            )
+        except Exception as llm_err:
+            print(f"[RAGPipeline] LLM generation notice ({llm_err}). Providing direct grounded context response.")
+            if chunks:
+                sources_str = "\n".join([f"[{i+1}] {c.get('metadata', {}).get('source_name', 'Document')}: {c.get('text', '')[:180]}..." for i, c in enumerate(chunks[:3])])
+                answer = f"According to your uploaded study material:\n\n{sources_str}\n\n(AI reasoning temporarily operating in direct grounding mode)."
+            else:
+                answer = "I couldn't find enough evidence in the uploaded material to answer that question."
 
         return {
             "query": question,

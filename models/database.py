@@ -185,6 +185,58 @@ class LearningEvent(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class StudySpaceRecord(Base):
+    __tablename__ = "study_spaces"
+
+    id = Column(String(100), primary_key=True, index=True)
+    user_id = Column(String(100), nullable=False, index=True)
+    name = Column(String(255), nullable=False)
+    status = Column(String(50), default="CREATED")  # CREATED, PROCESSING, READY, PARTIAL, FAILED
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class DocumentRecord(Base):
+    __tablename__ = "documents"
+
+    id = Column(String(100), primary_key=True, index=True)
+    session_id = Column(String(100), nullable=False, index=True)
+    user_id = Column(String(100), nullable=False, index=True)
+    original_filename = Column(String(500), nullable=False)
+    mime_type = Column(String(150), default="")
+    file_extension = Column(String(50), default="")
+    file_size = Column(Integer, default=0)
+    source_type = Column(String(50), default="document")
+    processing_status = Column(String(50), default="PENDING")  # PENDING, PROCESSING, INDEXED, FAILED
+    page_count = Column(Integer, default=1)
+    chunk_count = Column(Integer, default=0)
+    error_message = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class ChatSessionRecord(Base):
+    __tablename__ = "chat_sessions"
+
+    id = Column(String(100), primary_key=True, index=True)
+    user_id = Column(String(100), nullable=False, index=True)
+    study_session_id = Column(String(100), nullable=False, index=True)
+    title = Column(String(255), default="New Discussion")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class ChatMessageRecord(Base):
+    __tablename__ = "chat_messages"
+
+    id = Column(String(100), primary_key=True, index=True)
+    chat_session_id = Column(String(100), nullable=False, index=True)
+    user_id = Column(String(100), nullable=False, index=True)
+    role = Column(String(30), nullable=False)  # user, assistant, system
+    content = Column(Text, nullable=False)
+    citations_json = Column(Text, default="[]")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 def init_db():
     Base.metadata.create_all(bind=engine)
 

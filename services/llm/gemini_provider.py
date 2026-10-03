@@ -48,15 +48,20 @@ class GeminiProvider(LLMProvider):
                     if response_format:
                         kwargs["response_format"] = response_format
 
-                    interaction = self.client.interactions.create(**kwargs)
-                    return interaction.output_text or ""
+                    try:
+                        resp = self.client.models.generate_content(model=model_name, contents=prompt)
+                        return resp.text or ""
+                    except (AttributeError, TypeError):
+                        interaction = self.client.interactions.create(**kwargs)
+                        return interaction.output_text or ""
 
                 except Exception as error:
                     error_str = str(error).lower()
-                    is_rate_limit = "429" in error_str or "too_many_requests" in error_str or "quota" in error_str
-                    is_service_unavailable = any(code in error_str for code in ["503", "service_unavailable", "high demand", "overloaded", "temporarily unavailable", "500", "502", "504"])
-                    is_network_error = any(net_err in error_str for net_err in ["getaddrinfo", "gaierror", "connection", "connecterror", "socket", "timeout", "reset by peer", "winerror 10060", "winerror 10061"])
+                    if "quota" in error_str or "resource_exhausted" in error_str or "exceeded your current quota" in error_str:
+                        raise RuntimeError(f"Gemini quota exhausted: {error}")
 
+                    is_rate_limit = "429" in error_str or "too_many_requests" in error_str
+                    is_service_unavailable = any(code in error_str for code in ["503", "service_unavailable", "high demand", "overloaded", "temporarily unavailable", "500", "502", "504"])
                     if is_rate_limit or is_service_unavailable or is_network_error:
                         reason = "Network Error" if is_network_error else ("503 High Demand" if is_service_unavailable else "429 Rate Limit")
                         if attempt < max_retries:

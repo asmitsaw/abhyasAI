@@ -12,13 +12,19 @@ from services.adaptive_quiz_service import AdaptiveQuizService
 from services.answer_evaluator import AnswerEvaluator
 from services.viva_service import get_viva_service
 from services.exam_simulator_service import get_exam_simulator
+from functools import wraps
+from typing import Optional, Dict, Any, List
 from services.knowledge_graph.graph_service import get_knowledge_graph_service
 from services.demo_service import seed_demo_data
+from services.supabase_service import get_supabase_service
+from services.ingestion import get_ingestion_manager
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
 # Instantiate services
 ingestion_service = UniversalIngestionService()
+ingestion_manager = get_ingestion_manager()
+supabase_service = get_supabase_service()
 rag_pipeline = get_rag_pipeline()
 mastery_service = MasteryService()
 pyq_service = get_pyq_service()
@@ -30,8 +36,60 @@ exam_simulator = get_exam_simulator()
 kg_service = get_knowledge_graph_service()
 
 
+def get_authenticated_user(allow_demo: bool = False) -> Optional[Dict[str, Any]]:
+    """
+    Extract and verify user identity from Authorization Bearer token, session cookie,
+    or fallback to session store. Never trust raw user_id in request bodies.
+    """
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header else ""
+    if not token:
+        token = request.cookies.get("abhyas_auth_token", "")
+
+    if token:
+        user = supabase_service.verify_token(token)
+        if user:
+            return user
+
+    if "user_id" in session:
+        return {"id": str(session["user_id"]), "email": session.get("user_email", "student@abhyas.ai")}
+
+    # Demo mode fallback only when explicitly permitted
+    if allow_demo and os.getenv("DEMO_MODE", "false").lower() == "true":
+        demo_id = str(session.get("student_id", "demo_student_01"))
+        return {"id": demo_id, "email": "demo@abhyas.ai"}
+
+    return None
+
+
+def require_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        user = get_authenticated_user(allow_demo=False)
+        if not user:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "AUTH_REQUIRED",
+                    "message": "Authentication required. Please log in."
+                }
+            }), 401
+        return f(user, *args, **kwargs)
+    return decorated
+
+
 def get_current_student_id() -> int:
     return int(session.get("student_id", 1))
+
+
+def generate_chat_title(question: str) -> str:
+    """Generate clean deterministic title from user question without expensive LLM call."""
+    cleaned = re.sub(r'^(what is|explain|define|how to|tell me about|describe|can you explain)\s+', '', question.strip(), flags=re.IGNORECASE)
+    cleaned = re.sub(r'[?!.,;:]+', '', cleaned).strip()
+    words = cleaned.split()
+    if not words:
+        return "Study Discussion"
+    return " ".join(words[:6]).title()
 
 
 # -------------------------------------------------------------
@@ -591,3 +649,333 @@ def process_materials():
         return jsonify({"success": False, "error": str(error)}), 500
     finally:
         db.close()
+
+
+# -------------------------------------------------------------
+# 11. Authentication Endpoints (Supabase Auth / GoTrue)
+# -------------------------------------------------------------
+@api_bp.route("/auth/signup", methods=["POST"])
+def auth_signup():
+    data = request.get_json() or {}
+    email = data.get("email", "").strip()
+    password = data.get("password", "").strip()
+
+    res = supabase_service.sign_up(email, password)
+    if not res.get("success"):
+        return jsonify({"success": False, "error": {"code": "SIGNUP_FAILED", "message": res.get("error", "Sign up failed")}}), 400
+
+    user_info = res.get("user", {})
+    session["user_id"] = user_info.get("id")
+    session["user_email"] = user_info.get("email")
+
+    return jsonify({"success": True, "data": res})
+
+
+@api_bp.route("/auth/login", methods=["POST"])
+def auth_login():
+    data = request.get_json() or {}
+    email = data.get("email", "").strip()
+    password = data.get("password", "").strip()
+
+    res = supabase_service.sign_in(email, password)
+    if not res.get("success"):
+        return jsonify({"success": False, "error": {"code": "LOGIN_FAILED", "message": res.get("error", "Invalid credentials")}}), 401
+
+    user_info = res.get("user", {})
+    session["user_id"] = user_info.get("id")
+    session["user_email"] = user_info.get("email")
+
+    return jsonify({"success": True, "data": res})
+
+
+@api_bp.route("/auth/session", methods=["GET"])
+def auth_session():
+    user = get_authenticated_user()
+    if user:
+        return jsonify({"success": True, "data": {"authenticated": True, "user": user}})
+    return jsonify({"success": True, "data": {"authenticated": False, "user": None}})
+
+
+@api_bp.route("/auth/logout", methods=["POST"])
+def auth_logout():
+    session.clear()
+    return jsonify({"success": True, "data": {"message": "Logged out successfully"}})
+
+
+# -------------------------------------------------------------
+# 12. Study Space Endpoints
+# -------------------------------------------------------------
+@api_bp.route("/study-sessions", methods=["GET"])
+@require_auth
+def list_study_spaces(user):
+    user_id = str(user["id"])
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header else None
+
+    sessions = supabase_service.get_study_sessions(user_id, user_token=token)
+    return jsonify({"success": True, "data": sessions})
+
+
+@api_bp.route("/study-sessions", methods=["POST"])
+@require_auth
+def create_study_space(user):
+    data = request.get_json() or {}
+    name = data.get("name", "").strip() or "Untitled Study Session"
+    user_id = str(user["id"])
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header else None
+
+    space = supabase_service.create_study_session(user_id, name, user_token=token)
+    return jsonify({"success": True, "data": space})
+
+
+@api_bp.route("/study-sessions/<session_id>", methods=["GET"])
+@require_auth
+def get_study_space_detail(user, session_id):
+    user_id = str(user["id"])
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header else None
+
+    space = supabase_service.get_study_session(session_id, user_id, user_token=token)
+    if not space:
+        return jsonify({"success": False, "error": {"code": "NOT_FOUND", "message": "Study space not found"}}), 404
+
+    docs = supabase_service.get_session_documents(session_id, user_id, user_token=token)
+    space["documents"] = docs
+    return jsonify({"success": True, "data": space})
+
+
+@api_bp.route("/study-sessions/<session_id>/documents", methods=["POST"])
+@require_auth
+def upload_study_space_documents(user, session_id):
+    user_id = str(user["id"])
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header else None
+
+    # Validate session ownership
+    space = supabase_service.get_study_session(session_id, user_id, user_token=token)
+    if not space:
+        return jsonify({"success": False, "error": {"code": "UNAUTHORIZED", "message": "Study space not found or unauthorized"}}), 404
+
+    uploaded_files = request.files.getlist("files")
+    if not uploaded_files or not any(f.filename for f in uploaded_files):
+        return jsonify({"success": False, "error": {"code": "NO_FILES", "message": "Please upload at least 1 file."}}), 400
+
+    # Build files data tuples (filename, bytes)
+    files_data = []
+    for f in uploaded_files:
+        if f.filename:
+            content = f.read()
+            files_data.append((f.filename, content))
+
+    subject_name = request.form.get("session_name") or space.get("name") or "General"
+
+    # Ingest using universal ingestion manager
+    result = ingestion_manager.ingest_session_files(
+        session_id=session_id,
+        user_id=user_id,
+        files_data=files_data,
+        subject_name=subject_name,
+        user_token=token
+    )
+
+    status_code = 200 if result.get("success") else 400
+    return jsonify(result), status_code
+
+
+@api_bp.route("/study-sessions/<session_id>/documents", methods=["GET"])
+@require_auth
+def get_study_space_documents(user, session_id):
+    user_id = str(user["id"])
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header else None
+
+    docs = supabase_service.get_session_documents(session_id, user_id, user_token=token)
+    return jsonify({"success": True, "data": docs})
+
+
+# -------------------------------------------------------------
+# 13. Persistent Chat & Chat History Endpoints
+# -------------------------------------------------------------
+@api_bp.route("/chat", methods=["POST"])
+@require_auth
+def chat_query(user):
+    data = request.get_json() or {}
+    question = (data.get("question") or data.get("message") or "").strip()
+    study_session_id = data.get("session_id") or data.get("study_session_id")
+    chat_session_id = data.get("chat_session_id")
+    subject = data.get("subject", "General").strip()
+
+    if not question:
+        return jsonify({"success": False, "error": {"code": "EMPTY_QUESTION", "message": "Please enter a question."}}), 400
+
+    if not study_session_id:
+        return jsonify({"success": False, "error": {"code": "SESSION_REQUIRED", "message": "Please select a study space."}}), 400
+
+    user_id = str(user["id"])
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header else None
+
+    # Validate study session ownership
+    study_space = supabase_service.get_study_session(study_session_id, user_id, user_token=token)
+    if not study_space:
+        return jsonify({"success": False, "error": {"code": "SESSION_UNAUTHORIZED", "message": "Study space not found or unauthorized"}}), 404
+
+    # Ensure or create chat conversation
+    if not chat_session_id:
+        title = generate_chat_title(question)
+        new_chat = supabase_service.create_chat_session(user_id, study_session_id, title=title, user_token=token)
+        chat_session_id = new_chat["id"]
+
+    # 1. Save user message first (Order Requirement 30)
+    supabase_service.save_chat_message(
+        chat_session_id=chat_session_id,
+        user_id=user_id,
+        role="user",
+        content=question,
+        user_token=token
+    )
+
+    # 2. Execute RAG scoped strictly to authenticated user and study space
+    try:
+        rag_res = rag_pipeline.query(
+            question=question,
+            subject=study_space.get("name") or subject,
+            user_id=user_id,
+            session_id=study_session_id,
+            top_k=int(data.get("top_k", 5)),
+            use_reasoning=bool(data.get("use_reasoning", False))
+        )
+        answer = rag_res.get("answer", "")
+        citations = rag_res.get("citations", [])
+
+        # 3. Save assistant message with real citations
+        supabase_service.save_chat_message(
+            chat_session_id=chat_session_id,
+            user_id=user_id,
+            role="assistant",
+            content=answer,
+            citations=citations,
+            user_token=token
+        )
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "chat_session_id": chat_session_id,
+                "question": question,
+                "answer": answer,
+                "citations": citations,
+                "evidence_found": rag_res.get("evidence_found", False),
+                "sources_used": rag_res.get("sources_used", []),
+                "retrieval_count": rag_res.get("retrieval_count", 0)
+            }
+        })
+    except Exception as rag_err:
+        err_msg = f"Unable to retrieve grounded answer: {str(rag_err)}"
+        supabase_service.save_chat_message(
+            chat_session_id=chat_session_id,
+            user_id=user_id,
+            role="assistant",
+            content=err_msg,
+            user_token=token
+        )
+        return jsonify({"success": False, "error": {"code": "RAG_ERROR", "message": err_msg}}), 500
+
+
+@api_bp.route("/chat/history", methods=["GET"])
+@require_auth
+def get_chat_history(user):
+    user_id = str(user["id"])
+    study_session_id = request.args.get("study_session_id") or request.args.get("session_id")
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header else None
+
+    chats = supabase_service.get_chat_sessions(user_id, study_session_id=study_session_id, user_token=token)
+    return jsonify({"success": True, "data": chats})
+
+
+@api_bp.route("/chat/sessions", methods=["POST"])
+@require_auth
+def start_chat_session(user):
+    user_id = str(user["id"])
+    data = request.get_json() or {}
+    study_session_id = data.get("study_session_id") or data.get("session_id")
+    title = data.get("title", "").strip() or "New Discussion"
+
+    if not study_session_id:
+        return jsonify({"success": False, "error": {"code": "SESSION_REQUIRED", "message": "study_session_id is required"}}), 400
+
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header else None
+
+    chat = supabase_service.create_chat_session(user_id, study_session_id, title=title, user_token=token)
+    return jsonify({"success": True, "data": chat})
+
+
+@api_bp.route("/chat/sessions/<chat_id>/messages", methods=["GET"])
+@require_auth
+def get_chat_messages(user, chat_id):
+    user_id = str(user["id"])
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip() if auth_header else None
+
+    # Verify session ownership
+    chat = supabase_service.get_chat_session(chat_id, user_id, user_token=token)
+    if not chat:
+        return jsonify({"success": False, "error": {"code": "NOT_FOUND", "message": "Chat conversation not found"}}), 404
+
+    messages = supabase_service.get_chat_messages(chat_id, user_id, user_token=token)
+    return jsonify({"success": True, "data": messages})
+
+
+# -------------------------------------------------------------
+# 14. RAG Diagnostics & Status Endpoints
+# -------------------------------------------------------------
+@api_bp.route("/rag/status", methods=["GET"])
+def rag_status_endpoint():
+    """Report Chroma Cloud, Gemini, and Supabase connectivity without leaking credentials."""
+    from services.rag.embeddings import get_rag_status
+    status = get_rag_status()
+    status["gemini_configured"] = bool(os.getenv("GEMINI_API_KEY"))
+    status["supabase_configured"] = supabase_service.is_configured
+    status["supabase_url"] = supabase_service.url if supabase_service.is_configured else "not_configured (using SQLite fallback)"
+    return jsonify({"success": True, "data": status})
+
+
+@api_bp.route("/rag/debug", methods=["POST"])
+@require_auth
+def rag_debug_endpoint(user):
+    data = request.get_json() or {}
+    question = data.get("query", "").strip()
+    session_id = data.get("session_id")
+    subject = data.get("subject", "General")
+
+    start_t = time.perf_counter()
+    retrieval = rag_pipeline.retriever.retrieve(
+        query=question,
+        subject=subject,
+        user_id=str(user["id"]),
+        session_id=session_id,
+        top_k=int(data.get("top_k", 5))
+    )
+    elapsed = round(time.perf_counter() - start_t, 3)
+
+    return jsonify({
+        "success": True,
+        "data": {
+            "query": question,
+            "session_id": session_id,
+            "user_id": str(user["id"]),
+            "retrieval_count": len(retrieval.get("chunks", [])),
+            "chunks": [
+                {
+                    "chunk_id": c.get("chunk_id"),
+                    "score": c.get("rerank_score", c.get("distance")),
+                    "source": c.get("metadata", {}).get("source_name")
+                }
+                for c in retrieval.get("chunks", [])
+            ],
+            "latency_seconds": elapsed
+        }
+    })

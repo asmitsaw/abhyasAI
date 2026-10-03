@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Sign Up | Abhyas AI Study Intelligence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .auth-container {
+            max-width: 480px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+        .auth-card {
+            background: var(--white);
+            border: var(--border-thick);
+            box-shadow: var(--shadow-xl);
+            border-radius: 12px;
+            padding: 36px 30px;
+            position: relative;
+        }
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            border-bottom: 3px solid var(--charcoal);
+            padding-bottom: 12px;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            border: 2px solid var(--charcoal);
+            border-radius: 8px;
+            background: #FAF6ED;
+            transition: all 0.2s;
+        }
+        .auth-tab.active {
+            background: var(--golden-yellow);
+            box-shadow: 3px 3px 0 var(--charcoal);
+            transform: translate(-2px, -2px);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 800;
+            font-size: 13px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            border: 3px solid var(--charcoal);
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 15px;
+            box-sizing: border-box;
+            background: #FFFDF8;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--cobalt-blue);
+            background: white;
+            box-shadow: 2px 2px 0 var(--cobalt-blue);
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 16px;
+            border: var(--border-med);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: var(--shadow-md);
+            margin-top: 10px;
+        }
+        .auth-btn-primary {
+            background: var(--cobalt-blue);
+            color: white;
+        }
+        .auth-btn-primary:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: var(--shadow-lg);
+        }
+        .error-alert {
+            display: none;
+            background: #FFEBEB;
+            border: 2px solid var(--coral);
+            color: var(--red);
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+        .success-alert {
+            display: none;
+            background: #E8F8F5;
+            border: 2px solid var(--mint);
+            color: #0E7060;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+        .auth-footer {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+        }
+    </style>
+</head>
+<body style="background: var(--cream); min-height: 100vh;">
+
+    <!-- NAVBAR -->
+    <header class="navbar" style="background: var(--charcoal); padding: 14px 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid var(--black);">
+        <a href="/" class="logo" style="text-decoration: none; color: white; font-family: var(--font-logo); font-size: 24px;">
+            ABHYAS<span style="color: var(--golden-yellow);">AI</span>
+        </a>
+        <div style="font-family: var(--font-display); font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">
+            SECURE EXAM INTELLIGENCE SPACE
+        </div>
+    </header>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <span class="badge-pill badge-strong" style="margin-bottom: 8px;">ACADEMIC WORKSPACE ACCESS</span>
+                <h1 style="font-family: var(--font-display); font-size: 28px; font-weight: 900; margin: 8px 0 4px;">
+                    Welcome to AbhyasAI
+                </h1>
+                <p style="font-size: 14px; color: #666; font-weight: 600; margin: 0;">
+                    Sign in to access your private study sessions and grounded RAG tutor.
+                </p>
+            </div>
+
+            <!-- TABS -->
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">SIGN IN</div>
+                <div class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">CREATE ACCOUNT</div>
+            </div>
+
+            <!-- ALERTS -->
+            <div class="error-alert" id="auth-error"></div>
+            <div class="success-alert" id="auth-success"></div>
+
+            <!-- FORM -->
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+                <div class="form-group">
+                    <label for="auth-email">University / Student Email</label>
+                    <input type="email" id="auth-email" class="form-control" placeholder="student@university.edu" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="auth-password">Password</label>
+                    <input type="password" id="auth-password" class="form-control" placeholder="••••••••••••" required minlength="6" autocomplete="current-password">
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="auth-btn auth-btn-primary">
+                    SIGN IN TO STUDY SPACE →
+                </button>
+            </form>
+
+            <div class="auth-footer" id="auth-switch-prompt">
+                New to AbhyasAI? <a href="javascript:void(0)" onclick="switchAuthTab('signup')" style="color: var(--cobalt-blue); font-weight: 800; text-decoration: underline;">Create an account</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = "login";
+
+        function switchAuthTab(mode) {
+            currentMode = mode;
+            const loginTab = document.getElementById("tab-login");
+            const signupTab = document.getElementById("tab-signup");
+            const submitBtn = document.getElementById("auth-submit-btn");
+            const prompt = document.getElementById("auth-switch-prompt");
+            const errEl = document.getElementById("auth-error");
+            const succEl = document.getElementById("auth-success");
+
+            errEl.style.display = "none";
+            succEl.style.display = "none";
+
+            if (mode === "signup") {
+                loginTab.classList.remove("active");
+                signupTab.classList.add("active");
+                submitBtn.textContent = "CREATE STUDY ACCOUNT 💥";
+                submitBtn.style.background = "var(--golden-yellow)";
+                submitBtn.style.color = "var(--charcoal)";
+                prompt.innerHTML = `Already have an account? <a href="javascript:void(0)" onclick="switchAuthTab('login')" style="color: var(--cobalt-blue); font-weight: 800; text-decoration: underline;">Sign In</a>`;
+            } else {
+                signupTab.classList.remove("active");
+                loginTab.classList.add("active");
+                submitBtn.textContent = "SIGN IN TO STUDY SPACE →";
+                submitBtn.style.background = "var(--cobalt-blue)";
+                submitBtn.style.color = "white";
+                prompt.innerHTML = `New to AbhyasAI? <a href="javascript:void(0)" onclick="switchAuthTab('signup')" style="color: var(--cobalt-blue); font-weight: 800; text-decoration: underline;">Create an account</a>`;
+            }
+        }
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById("auth-email").value.trim();
+            const password = document.getElementById("auth-password").value;
+            const errEl = document.getElementById("auth-error");
+            const succEl = document.getElementById("auth-success");
+            const btn = document.getElementById("auth-submit-btn");
+
+            errEl.style.display = "none";
+            succEl.style.display = "none";
+            btn.disabled = true;
+            btn.textContent = "Authenticating...";
+
+            const endpoint = currentMode === "signup" ? "/api/auth/signup" : "/api/auth/login";
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    errEl.textContent = data.error?.message || data.error || "Authentication failed. Check your details.";
+                    errEl.style.display = "block";
+                    btn.disabled = false;
+                    btn.textContent = currentMode === "signup" ? "CREATE STUDY ACCOUNT 💥" : "SIGN IN TO STUDY SPACE →";
+                    return;
+                }
+
+                if (data.data?.access_token) {
+                    localStorage.setItem("abhyas_auth_token", data.data.access_token);
+                    localStorage.setItem("abhyas_user_id", data.data.user?.id || "");
+                    localStorage.setItem("abhyas_user_email", data.data.user?.email || email);
+                }
+
+                succEl.textContent = currentMode === "signup" ? "Account created successfully! Redirecting..." : "Welcome back! Entering workspace...";
+                succEl.style.display = "block";
+
+                setTimeout(() => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const nextUrl = urlParams.get("next") || "/onboarding";
+                    window.location.href = nextUrl;
+                }, 800);
+
+            } catch (err) {
+                console.error(err);
+                errEl.textContent = "Network error connecting to authentication service. Please try again.";
+                errEl.style.display = "block";
+                btn.disabled = false;
+                btn.textContent = currentMode === "signup" ? "CREATE STUDY ACCOUNT 💥" : "SIGN IN TO STUDY SPACE →";
+            }
+        }
+
+        // Auto-check if already logged in
+        document.addEventListener("DOMContentLoaded", async () => {
+            const token = localStorage.getItem("abhyas_auth_token");
+            if (token) {
+                try {
+                    const res = await fetch("/api/auth/session", {
+                        headers: { "Authorization": `Bearer ${token}` }
+                    });
+                    const d = await res.json();
+                    if (d.success && d.data?.authenticated) {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const nextUrl = urlParams.get("next") || "/dashboard";
+                        window.location.href = nextUrl;
+                    }
+                } catch (_) {}
+            }
+        });
+    </script>
+</body>
+</html>

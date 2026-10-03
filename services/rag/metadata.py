@@ -19,6 +19,14 @@ class ChunkMetadata(BaseModel):
     end_index: int = Field(default=0, description="End character offset")
     section: str = Field(default="", description="Document section or header")
     heading: str = Field(default="", description="Nearest heading")
+    user_id: str = Field(default="", description="Authenticated user ID")
+    session_id: str = Field(default="", description="Study session ID")
+    file_type: str = Field(default="", description="File extension / MIME classification")
+    chunk_index: int = Field(default=0, description="Sequential index in document")
+    slide: str = Field(default="", description="Presentation slide number")
+    sheet: str = Field(default="", description="Spreadsheet sheet name")
+    snippet: str = Field(default="", description="Brief text preview")
+    created_at: str = Field(default="", description="ISO timestamp")
 
     def to_chroma_dict(self) -> Dict[str, Any]:
         """

@@ -49,12 +49,25 @@ class HybridRetriever:
         document_type: Optional[str] = None,
         top_k: int = 5,
         candidate_pool: int = 12,
+        user_id: Optional[str] = None,
+        session_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         query_type = self.router.route_query(query)
         target_collections = self.router.get_target_collections(query_type)
+        if session_id and "documents" not in target_collections:
+            target_collections = ["documents"] + target_collections
 
         # Build optional metadata filter
         where_clauses: List[Dict] = []
+        tenant_clauses: List[Dict] = []
+
+        if user_id:
+            tenant_clauses.append({"user_id": {"$eq": str(user_id)}})
+        if session_id:
+            tenant_clauses.append({"session_id": {"$eq": str(session_id)}})
+
+        where_clauses.extend(tenant_clauses)
+
         if subject and subject != "General":
             where_clauses.append({"subject": {"$eq": subject}})
         if module:
@@ -78,7 +91,7 @@ class HybridRetriever:
                 )
             except Exception as error:
                 print(f"[Retriever] Collection '{coll_type}' search warning: {error}")
-                # Graceful dense-only fallback
+                # Graceful dense-only fallback (preserving tenant filters)
                 try:
                     raw_candidates.extend(
                         self._dense_fallback(coll_type, query, 4, where_clauses)
@@ -86,12 +99,12 @@ class HybridRetriever:
                 except Exception:
                     pass
 
-        # If nothing found with filters, retry without them
-        if not raw_candidates and where_clauses:
+        # If nothing found with strict topic filters, relax topic filters but NEVER relax tenant filters!
+        if not raw_candidates and len(where_clauses) > len(tenant_clauses):
             for coll_type in target_collections:
                 try:
                     raw_candidates.extend(
-                        self._dense_fallback(coll_type, query, 4, [])
+                        self._dense_fallback(coll_type, query, 4, tenant_clauses)
                     )
                 except Exception:
                     pass
