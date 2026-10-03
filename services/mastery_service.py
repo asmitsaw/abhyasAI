@@ -69,7 +69,6 @@ class MasteryService:
 
             record = local_db.query(StudentTopicMastery).filter(
                 StudentTopicMastery.student_id == student_id,
-                StudentTopicMastery.subject_id == subject_id,
                 StudentTopicMastery.topic_name == topic_name
             ).first()
 
@@ -164,11 +163,8 @@ class MasteryService:
         """
         local_db = db or SessionLocal()
         try:
-            subject = local_db.query(Subject).filter(Subject.name == subject_name).first()
-            subject_id = subject.id if subject else None
             records = local_db.query(StudentTopicMastery).filter(
-                StudentTopicMastery.student_id == student_id,
-                StudentTopicMastery.subject_id == subject_id
+                StudentTopicMastery.student_id == student_id
             ).all()
 
             # Filter records matching subject or general

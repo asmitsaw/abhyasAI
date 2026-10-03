@@ -84,11 +84,6 @@ def get_sparse_ef() -> ChromaCloudSpladeEmbeddingFunction:
     return _sparse_ef
 
 
-def AbhyasEmbeddingFunction() -> ChromaCloudQwenEmbeddingFunction:
-    """Backward-compatibility alias returning Chroma Cloud Qwen dense embedding function."""
-    return get_dense_ef()
-
-
 # ---------------------------------------------------------------------------
 # Schema factory — dense + sparse both embedded in the Schema
 # ---------------------------------------------------------------------------

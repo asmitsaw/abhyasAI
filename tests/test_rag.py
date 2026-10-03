@@ -84,12 +84,12 @@ def test_embeddings_deterministic_fallback():
     docs = ["Process scheduling in Operating Systems", "Virtual memory and paging mechanisms"]
     vectors = embed_fn(docs)
     assert len(vectors) == 2
-    assert len(vectors[0]) in (768, 1024, 3072)
-    assert len(vectors[1]) in (768, 1024, 3072)
+    assert len(vectors[0]) in (768, 3072)
+    assert len(vectors[1]) in (768, 3072)
     # Consistent output for identical string
     vectors_repeat = embed_fn(docs)
     import numpy as np
-    assert np.allclose(vectors[0], vectors_repeat[0], atol=1e-2)
+    assert np.allclose(vectors[0], vectors_repeat[0])
 
 
 def test_query_router_classification():

@@ -184,7 +184,7 @@
                     </div>
                     <div class="timeline-step pending" id="step-3">
                         <span class="step-icon">3</span>
-                        <span>Analyzing past year exam papers & question marks...</span>
+                        <span>Parsing uploaded past year exam papers & question marks...</span>
                     </div>
                     <div class="timeline-step pending" id="step-4">
                         <span class="step-icon">4</span>
@@ -207,7 +207,7 @@
                 <div id="ready-banner" style="display: none; margin-top: 25px; text-align: center; background: #e8f5e9; border: 3px solid var(--black); padding: 20px;">
                     <h3 style="margin: 0 0 8px; color: #2e7d32; font-size: 22px;">EXAM INTELLIGENCE SYSTEM READY! 🚀</h3>
                     <p style="font-weight: 700; margin-bottom: 15px;">All documents indexed into RAG. Historical question patterns and concept maps are live.</p>
-                    <a href="/dashboard" id="dashboard-link" class="comic-button yellow" style="font-size: 18px; padding: 14px 28px; text-decoration: none;">
+                    <a href="/dashboard" class="comic-button yellow" style="font-size: 18px; padding: 14px 28px; text-decoration: none;">
                         LAUNCH YOUR PERSONALIZED DASHBOARD 💥
                     </a>
                 </div>
@@ -253,11 +253,8 @@
                 const res = await fetchPromise;
                 const data = await res.json();
 
-                if (!res.ok || !data.success) {
-                    const errorMessage = data.error || `Processing failed (HTTP ${res.status}).`;
-                    document.getElementById("stage-badge").className = "status-badge status-red";
-                    document.getElementById("stage-badge").textContent = "PROCESSING FAILED";
-                    alert("Processing notice: " + errorMessage);
+                if (!data.success) {
+                    alert("Processing notice: " + (data.error || "Failed to process materials."));
                     location.reload();
                     return;
                 }
@@ -280,6 +277,10 @@
 
                 document.getElementById("stage-badge").className = "status-badge status-green";
                 document.getElementById("stage-badge").textContent = "PROCESSING COMPLETED";
+                const elapsed = data.data && data.data.processing_seconds;
+                if (elapsed) {
+                    document.querySelector("#stage-badge").title = `Completed in ${elapsed}s`;
+                }
                 const dashboardLink = document.getElementById("dashboard-link");
                 if (dashboardLink && data.data && data.data.subject) {
                     dashboardLink.href = `/dashboard?subject=${encodeURIComponent(data.data.subject)}`;

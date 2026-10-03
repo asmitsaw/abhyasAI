@@ -1,8 +1,8 @@
 import os
 import re
+import time
 from flask import Blueprint, request, jsonify, session
 from models.database import SessionLocal, User, Subject, StudentTopicMastery
-from services.syllabus_service import parse_syllabus
 from services.rag.rag_pipeline import get_rag_pipeline
 from services.rag.ingestion import UniversalIngestionService
 from services.mastery_service import MasteryService
@@ -413,6 +413,7 @@ def trigger_demo_seed():
 def process_materials():
     db = SessionLocal()
     try:
+        started_at = time.perf_counter()
         student_id = get_current_student_id()
         subject_name = (
             request.form.get("subject_name", "").strip()
@@ -443,7 +444,6 @@ def process_materials():
         detected_topics = []
         syllabus_text = ""
 
-        syllabus_text_input = request.form.get("syllabus_text", "").strip()
         if syllabus_file and syllabus_file.filename:
             syllabus_res = safe_ingest(
                 file_source=syllabus_file.stream,
@@ -455,43 +455,22 @@ def process_materials():
             syllabus_file.stream.seek(0)
             syllabus_text = ingestion_service.extract_text(syllabus_file.stream, syllabus_file.filename)
 
-            try:
-                parsed_syll = parse_syllabus(syllabus_text)
-                for mod in parsed_syll.modules:
-                    for t in mod.topics:
-                        if t and t not in detected_topics:
-                            detected_topics.append(t)
-            except Exception as syll_err:
-                print(f"[Process Materials] Syllabus LLM parse fallback: {syll_err}")
-                for line in syllabus_text.splitlines():
-                    line = line.strip()
-                    if (line.startswith("-") or line.startswith("*") or ":" in line) and len(line) < 60:
-                        cand = re.sub(r"^[-*0-9.\s]+", "", line).split(":")[0].strip()
-                        if cand and len(cand) > 3 and cand not in detected_topics:
-                            detected_topics.append(cand)
-        elif syllabus_text_input:
-            syllabus_text = syllabus_text_input
-            syllabus_res = ingestion_service.ingest_raw_text(
-                text=syllabus_text,
-                title=f"{subject_name} Syllabus",
-                document_type="syllabus",
-                subject=subject_name,
-            )
-            syllabus_chunks = syllabus_res.get("chunks_created", 0)
-            try:
-                parsed_syll = parse_syllabus(syllabus_text)
-                for mod in parsed_syll.modules:
-                    for t in mod.topics:
-                        if t and t not in detected_topics:
-                            detected_topics.append(t)
-            except Exception as syll_err:
-                print(f"[Process Materials] Pasted syllabus parse fallback: {syll_err}")
-                for line in syllabus_text.splitlines():
-                    line = line.strip()
-                    if (line.startswith("-") or line.startswith("*") or ":" in line) and len(line) < 60:
-                        cand = re.sub(r"^[-*0-9.\s]+", "", line).split(":")[0].strip()
-                        if cand and len(cand) > 3 and cand not in detected_topics:
-                            detected_topics.append(cand)
+            # Topic extraction is deliberately local during onboarding. A remote
+            # Gemini parse here made a DNS/API retry block the whole upload.
+            for line in syllabus_text.splitlines():
+                line = line.strip()
+                if not line or len(line) > 140:
+                    continue
+                candidate = re.sub(
+                    r"^(?:module\s*\d+\s*[:.-]?|unit\s*\d+\s*[:.-]?|[-*•]|[0-9]+[.)])\s*",
+                    "",
+                    line,
+                    flags=re.IGNORECASE,
+                ).strip()
+                if ":" in candidate:
+                    candidate = candidate.split(":", 1)[-1].strip()
+                if 4 <= len(candidate) <= 100 and candidate not in detected_topics:
+                    detected_topics.append(candidate)
 
         # 2. Ingest PYQs
         pyq_chunks = 0
@@ -545,16 +524,13 @@ def process_materials():
             notes_chunks = notes_res.get("chunks_created", 0)
 
         if not detected_topics:
-            detected_topics = ["Memory Management", "Processes and Threads", "CPU Scheduling", "Deadlock", "File Systems"]
+            detected_topics = [f"{subject_name} Core Concepts"]
 
         # Feed to pyq_service
         if pyq_questions_list:
             pyq_service.index_pyq_analyses(subject_name=subject_name, pyq_questions=pyq_questions_list)
         else:
-            pyq_service.index_pyq_analyses(subject_name=subject_name, pyq_questions=[
-                {"topic": t, "marks": 10, "year": "2025", "question": f"Explain {t} in detail with diagram.", "difficulty": "Medium", "question_type": "Descriptive"}
-                for t in detected_topics[:5]
-            ])
+            pyq_service.index_pyq_analyses(subject_name=subject_name, pyq_questions=[])
 
         # 4. Initialize Database records for student
         user = db.query(User).filter_by(id=student_id).first()
@@ -596,14 +572,15 @@ def process_materials():
                 "subject": subject_name,
                 "syllabus_extracted": True,
                 "chunks_indexed": total_chunks,
-                "pyq_questions_detected": len(pyq_questions_list) or 15,
+                "pyq_questions_detected": len(pyq_questions_list),
                 "concepts_identified": len(detected_topics),
                 "recurring_topics_found": min(len(detected_topics), 5),
-                "knowledge_graph_built": True,
+                "knowledge_graph_built": False,
                 "rag_indexing": {
                     "status": "partial_success" if indexing_warnings else "success",
                     "warnings": indexing_warnings
-                }
+                },
+                "processing_seconds": round(time.perf_counter() - started_at, 2)
             }
         })
 
