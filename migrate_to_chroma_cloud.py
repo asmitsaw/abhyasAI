@@ -74,10 +74,10 @@ cloud_client = chromadb.CloudClient(
     database=database,
     api_key=api_key,
 )
-print("[migrate] Connected ✓")
+print("[migrate] Connected [OK]")
 
 # ── Import Cloud helpers ──────────────────────────────────────────────────────
-from services.rag.embeddings import get_hybrid_schema, get_dense_ef
+from services.rag.embeddings import get_hybrid_schema
 
 schema = get_hybrid_schema()
 
@@ -91,7 +91,16 @@ total_errors   = 0
 for local_coll in local_collections:
     coll_name = local_coll.name
     count     = local_coll.count()
-    print(f"\n[migrate] Collection '{coll_name}' — {count} chunks")
+
+    # Map legacy model-suffixed collection names (e.g. abhyas_syllabus_gemini_embedding_001_v1)
+    # to clean canonical names (abhyas_syllabus) used by Chroma Cloud RAG service.
+    target_name = coll_name
+    for doc_type in ["syllabus", "pyq", "notes", "lectures", "documents"]:
+        if doc_type in coll_name.lower():
+            target_name = f"abhyas_{doc_type}"
+            break
+
+    print(f"\n[migrate] Collection '{coll_name}' -> '{target_name}' - {count} chunks")
 
     if count == 0:
         print("  (empty, skipping)")
@@ -99,9 +108,8 @@ for local_coll in local_collections:
 
     # Get or create the Cloud destination collection
     cloud_coll = cloud_client.get_or_create_collection(
-        name=coll_name,
+        name=target_name,
         schema=schema,
-        embedding_function=get_dense_ef(),
     )
 
     # Fetch all docs from local in pages
@@ -135,10 +143,10 @@ for local_coll in local_collections:
             try:
                 cloud_coll.upsert(ids=v_ids, documents=v_docs, metadatas=v_mets)
                 total_migrated += len(v_ids)
-                print(f"  ✓ batch [{offset+1}–{offset+len(ids)}] — {len(v_ids)} upserted", flush=True)
+                print(f"  [OK] batch [{offset+1}-{offset+len(ids)}] - {len(v_ids)} upserted", flush=True)
             except Exception as e:
                 total_errors += len(v_ids)
-                print(f"  ✗ batch [{offset+1}–{offset+len(ids)}] error: {e}")
+                print(f"  [ERROR] batch [{offset+1}-{offset+len(ids)}] error: {e}")
 
         offset += limit
         time.sleep(0.25)   # gentle rate-limit respect
@@ -151,5 +159,5 @@ print(f"  Errors   : {total_errors} chunks")
 print("=" * 60)
 
 if total_migrated > 0:
-    print("\n✅ Your data is now in Chroma Cloud with hybrid search enabled.")
+    print("\n[SUCCESS] Your data is now in Chroma Cloud with hybrid search enabled.")
     print("   The local data/chroma directory can be kept as a backup.")

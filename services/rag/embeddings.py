@@ -54,7 +54,7 @@ def get_cloud_client() -> chromadb.api.client.Client:
             database=database,
             api_key=api_key,
         )
-        print("[ChromaCloud] Connected ✓")
+        print("[ChromaCloud] Connected [OK]")
     return _cloud_client
 
 
@@ -84,6 +84,11 @@ def get_sparse_ef() -> ChromaCloudSpladeEmbeddingFunction:
     return _sparse_ef
 
 
+def AbhyasEmbeddingFunction() -> ChromaCloudQwenEmbeddingFunction:
+    """Backward-compatibility alias returning Chroma Cloud Qwen dense embedding function."""
+    return get_dense_ef()
+
+
 # ---------------------------------------------------------------------------
 # Schema factory — dense + sparse both embedded in the Schema
 # ---------------------------------------------------------------------------
@@ -102,7 +107,7 @@ def get_hybrid_schema() -> Schema:
         schema = Schema()
 
         # 1. Dense: Qwen3 EF attached to the #embedding key via VectorIndexConfig
-        schema._set_vector_index_config(
+        schema.create_index(
             VectorIndexConfig(embedding_function=get_dense_ef())
         )
 
