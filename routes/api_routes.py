@@ -88,6 +88,7 @@ def query_rag():
         result = rag_pipeline.query(
             question=question,
             subject=subject,
+            document_type=data.get("document_type") or None,
             top_k=int(data.get("top_k", 5)),
             use_reasoning=bool(data.get("use_reasoning", False))
         )
