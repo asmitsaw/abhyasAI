@@ -20,7 +20,6 @@ from services.rag.embeddings import (
     get_cloud_client,
     get_collection_name,
     get_hybrid_schema,
-    get_dense_ef,
 )
 from services.rag.metadata import ChunkMetadata
 
@@ -68,7 +67,6 @@ class UniversalIngestionService:
         return self.client.get_or_create_collection(
             name=name,
             schema=self.schema,
-            embedding_function=get_dense_ef(),
         )
 
     # ------------------------------------------------------------------
